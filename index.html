@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>QPS Timer v0.2 (Cute Stable)</title>
+  <title>QPS Timer v0.3 (Cute + Compact)</title>
 
   <style>
 /* =========================================================
@@ -17,16 +17,16 @@
   --ink:#0f172a;
   --muted:#64748b;
 
-  --accent:#22c55e;
-  --accent2:#60a5fa;
-  --warn:#fb7185;
+  --accent:#22c55e;      /* green */
+  --accent2:#60a5fa;     /* soft blue */
+  --warn:#fb7185;        /* pink-red */
   --gold:#f59e0b;
 
   --border: rgba(15,23,42,.10);
   --shadow: 0 10px 24px rgba(2,6,23,.10);
 
-  --r: 18px;
-  --r2: 24px;
+  --r: 16px;
+  --r2: 22px;
 }
 
 /* reset */
@@ -37,9 +37,9 @@ body{
   font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   color:var(--ink);
   background:
-    radial-gradient(1100px 700px at 12% 8%, rgba(96,165,250,.26), transparent 55%),
-    radial-gradient(1000px 700px at 86% 18%, rgba(34,197,94,.22), transparent 52%),
-    radial-gradient(900px 700px at 48% 92%, rgba(245,158,11,.14), transparent 60%),
+    radial-gradient(1100px 700px at 12% 8%, rgba(96,165,250,.22), transparent 55%),
+    radial-gradient(1000px 700px at 86% 18%, rgba(34,197,94,.18), transparent 52%),
+    radial-gradient(900px 700px at 48% 92%, rgba(245,158,11,.12), transparent 60%),
     linear-gradient(180deg, var(--bg), var(--bg2));
   overflow:hidden;
 }
@@ -51,11 +51,10 @@ body{
   height:100vh;
   overflow-y:auto;
   -webkit-overflow-scrolling: touch;
-  padding: 14px 12px 48px;
-  scroll-snap-type: y proximity;
+  padding: 12px 12px 42px;
 }
 .container{
-  max-width: 900px;
+  max-width: 920px;
   margin: 0 auto;
 }
 
@@ -64,7 +63,7 @@ body{
   position: sticky;
   top: 0;
   z-index: 50;
-  margin: 0 auto 12px;
+  margin: 0 auto 10px;
   padding: 10px 10px 12px;
   background: linear-gradient(180deg, rgba(246,249,255,.98), rgba(246,249,255,.82), rgba(246,249,255,.00));
   backdrop-filter: blur(10px);
@@ -77,14 +76,17 @@ body{
 }
 .brand h1{
   margin:0;
-  font-size: 18px;
+  font-size: 16px;
   line-height:1.2;
+  letter-spacing:.2px;
 }
 .brand .sub{
   margin:6px 0 0;
   color:var(--muted);
   font-size:12px;
 }
+
+/* pills on right */
 .pills{
   display:flex;
   gap:8px;
@@ -96,13 +98,14 @@ body{
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding: 8px 12px;
+  padding: 7px 10px;
   border-radius: 999px;
   background: rgba(255,255,255,.92);
   border: 1px solid var(--border);
   box-shadow: 0 6px 14px rgba(2,6,23,.06);
   font-size:12px;
   color:var(--muted);
+  white-space: nowrap;
 }
 .pill b{ color:var(--ink); }
 .streakPill{ color: var(--ink); }
@@ -110,7 +113,7 @@ body{
   filter: drop-shadow(0 6px 10px rgba(245,158,11,.22));
 }
 
-/* jump buttons */
+/* compact jump tabs */
 .jump{
   display:flex;
   gap:8px;
@@ -118,16 +121,15 @@ body{
   flex-wrap:wrap;
 }
 .jump button{
-  padding: 9px 12px;
+  padding: 8px 10px;
   border-radius: 999px;
   font-size: 12px;
 }
 
 /* sections */
 .section{
-  scroll-snap-align:start;
+  margin-top: 10px;
   scroll-margin-top: 110px;
-  margin-top: 12px;
 }
 .sectionHead{
   display:flex;
@@ -138,9 +140,10 @@ body{
 }
 .sectionHead h2{
   margin:0;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted);
   letter-spacing:.2px;
+  font-weight: 800;
 }
 
 /* cards */
@@ -156,17 +159,18 @@ body{
   background: var(--border);
   margin: 12px 0;
 }
+
+/* form grid */
 .row{
   display:grid;
   gap:10px;
   grid-template-columns: 1fr;
 }
-.row.two{
-  grid-template-columns: 1fr;
-}
-@media(min-width:620px){
+@media(min-width:720px){
   .row.two{ grid-template-columns: 1fr 1fr; }
 }
+
+/* inputs */
 label{
   display:block;
   color:var(--muted);
@@ -179,31 +183,25 @@ input,select,textarea{
   border: 1px solid var(--border);
   background: white;
   color: var(--ink);
-  padding: 12px;
+  padding: 11px 12px;
   outline:none;
   font-size: 14px;
 }
-textarea{ min-height: 96px; resize: vertical; }
+textarea{ min-height: 92px; resize: vertical; }
 
-/* buttons */
-.btns{
-  display:grid;
-  gap:10px;
-  grid-template-columns: 1fr;
-}
-@media(min-width:620px){
-  .btns{ grid-template-columns: 1fr 1fr; }
-}
+/* =========================================================
+  [BOX 2] BUTTONS (compact)
+========================================================= */
 button{
   border:0;
-  border-radius: 16px;
-  padding: 12px 14px;
-  font-size: 15px;
-  font-weight: 750;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 800;
   cursor:pointer;
   color: white;
   background: linear-gradient(180deg, var(--accent), #16a34a);
-  box-shadow: 0 10px 20px rgba(34,197,94,.22);
+  box-shadow: 0 10px 18px rgba(34,197,94,.18);
 }
 button.secondary{
   color: var(--ink);
@@ -222,16 +220,60 @@ button:disabled{
   cursor:not-allowed;
 }
 
-/* timer */
+/* timer layout */
+.timerRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
 .timer{
   font-variant-numeric: tabular-nums;
   font-size: 44px;
   letter-spacing: 1px;
-  margin: 10px 0 4px;
+  margin: 6px 0 2px;
 }
-.hint{ color: var(--muted); font-size:12px; margin-top:8px; line-height:1.45; }
+.hint{ color: var(--muted); font-size:12px; margin-top:6px; line-height:1.45; }
 .ok{ color:#15803d; font-size:12px; margin-top:8px; }
 .warn{ color:#be123c; font-size:12px; margin-top:8px; }
+.miniWarn{
+  display:none;
+  margin-top:8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(251,113,133,.14);
+  border: 1px solid rgba(251,113,133,.22);
+  color:#9f1239;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* action bar: 1 big + 3 small pills */
+.actionBar{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top: 12px;
+}
+.actionBar .primary{
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+.pillBtns{
+  display:flex;
+  gap:8px;
+  flex: 0 0 auto;
+}
+.pillBtns button{
+  padding: 9px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  box-shadow:none;
+}
+.pillBtns button.secondary{ background: rgba(2,6,23,.05); }
+.pillBtns button.danger{ background: rgba(251,113,133,.18); }
 
 /* progress */
 .progressWrap{
@@ -241,13 +283,26 @@ button:disabled{
   gap:10px;
   flex-wrap:wrap;
 }
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.86);
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.badge b{ color: var(--ink); }
 .bar{
   margin-top:12px;
   background: rgba(2,6,23,.06);
   border: 1px solid var(--border);
   border-radius: 999px;
   overflow:hidden;
-  height: 14px;
+  height: 12px;
 }
 .bar > div{
   height:100%;
@@ -256,7 +311,7 @@ button:disabled{
   transition: width 240ms ease;
 }
 
-/* list items */
+/* list */
 .list{
   display:grid;
   gap:10px;
@@ -274,12 +329,25 @@ button:disabled{
   justify-content:space-between;
   gap:10px;
 }
-.itemName{ font-weight: 800; }
+.itemName{ font-weight: 900; }
 .itemMeta{ color: var(--muted); font-size: 12px; margin-top: 6px; }
 .itemScore{
-  font-weight: 900;
+  font-weight: 950;
   color: #16a34a;
   font-variant-numeric: tabular-nums;
+}
+
+/* Today tools: compact */
+.todayTools{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.todayTools button{
+  padding: 8px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  box-shadow:none;
 }
 
 /* overlay */
@@ -295,7 +363,7 @@ button:disabled{
 .overlay.show{ display:flex; }
 
 .sheet{
-  width: min(900px, 100vw);
+  width: min(920px, 100vw);
   max-height: 86vh;
   background: rgba(255,255,255,.98);
   border: 1px solid var(--border);
@@ -336,7 +404,7 @@ button:disabled{
   border-radius: 14px;
   border: 1px solid transparent;
   background: transparent;
-  font-weight: 800;
+  font-weight: 900;
   color: var(--ink);
   cursor:pointer;
 }
@@ -356,18 +424,6 @@ button:disabled{
   background: rgba(2,6,23,.03);
   padding: 10px;
 }
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.86);
-  color: var(--muted);
-  font-size: 12px;
-}
-.badge b{ color: var(--ink); }
   </style>
 </head>
 
@@ -375,10 +431,11 @@ button:disabled{
   <div class="app" id="appScroll">
     <div class="container">
 
+      <!-- TOPBAR -->
       <div class="topbar">
         <div class="topbarRow">
           <div class="brand">
-            <h1>QPS Timer v0.2</h1>
+            <h1>QPS Timer v0.3</h1>
             <div class="sub" id="todayText">Today: ----</div>
           </div>
 
@@ -402,7 +459,7 @@ button:disabled{
         <div class="card">
           <div class="row two">
             <div>
-              <label for="category">Quest Category (มีไว้จัดกลุ่มเฉยๆ ไม่ใช้ cap)</label>
+              <label for="category">Category</label>
               <select id="category">
                 <option value="Learning">Learning</option>
                 <option value="Work/Project">Work/Project</option>
@@ -411,22 +468,37 @@ button:disabled{
               </select>
             </div>
             <div>
-              <label for="questName">Quest Name (ห้ามซ้ำในวันเดียวกัน)</label>
+              <label for="questName">Quest Name (ห้ามซ้ำในวันเดียว)</label>
               <input id="questName" placeholder="เช่น English / Logic / Web fix" />
+              <div class="hint" id="questRuleHint"></div>
             </div>
           </div>
 
           <div class="divider"></div>
 
-          <div class="timer" id="timerText">00:00:00</div>
-          <div class="hint" id="timerHint">เลือกเควสแล้วกด Start</div>
-          <div class="warn" id="timerWarn" style="display:none;"></div>
+          <div class="timerRow">
+            <div>
+              <div class="timer" id="timerText">00:00:00</div>
+              <div class="hint" id="timerHint">ตั้งชื่อเควส แล้วกด Start</div>
+            </div>
+            <div class="badge" title="Base cap ต่อเควส">
+              Cap/Quest: <b id="capPerQuestText">60</b> min/day
+            </div>
+          </div>
 
-          <div class="btns" style="margin-top:12px;">
-            <button id="startBtn" type="button">Start Quest</button>
-            <button id="stopBtn" class="danger" type="button" disabled>Stop</button>
-            <button id="pauseBtn" class="secondary" type="button" disabled>Pause</button>
-            <button id="resumeBtn" class="secondary" type="button" disabled>Resume</button>
+          <div class="miniWarn" id="timerWarn"></div>
+
+          <div class="actionBar">
+            <button id="startBtn" class="primary" type="button">Start</button>
+            <div class="pillBtns">
+              <button id="pauseBtn" class="secondary" type="button" disabled>Pause</button>
+              <button id="resumeBtn" class="secondary" type="button" disabled>Resume</button>
+              <button id="stopBtn" class="danger" type="button" disabled>Stop</button>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            Base = minutes × 0.4 • Bonus = 0/+2/+4/+6 (เฉพาะเวลา ≥ 30 นาที) • Cap นับ Base ต่อ “ชื่อเควส” ไม่ใช่ต่อหมวด
           </div>
         </div>
       </div>
@@ -437,30 +509,26 @@ button:disabled{
 
         <div class="card">
           <div class="progressWrap">
-            <div class="badge">
-              Today's Total: <b id="todayTotal">0.0</b> / 100
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button id="historyBtn" class="secondary" type="button" style="padding:10px 12px;font-size:13px;">History</button>
-              <button id="resetTodayBtn" class="danger" type="button" style="padding:10px 12px;font-size:13px;">Reset Today</button>
+            <div class="badge">Today's Total: <b id="todayTotal">0.0</b> / 100</div>
+
+            <div class="todayTools">
+              <button id="historyBtn" class="secondary" type="button">History</button>
+              <button id="undoBtn" class="secondary" type="button" title="Undo ได้หลายขั้น">Undo</button>
+              <button id="redoBtn" class="secondary" type="button" title="Redo ล่าสุด">Redo</button>
+              <button id="resetTodayBtn" class="danger" type="button">Reset Today</button>
             </div>
           </div>
 
           <div class="bar"><div id="progressFill"></div></div>
 
-          <div class="hint" style="margin-top:10px;">
-            Base = minutes × 0.4 • Bonus = 0/+2/+4/+6 (เฉพาะเวลา ≥ 30 นาที) •
-            <b>Base cap = 60 นาที/วัน/ต่อ Quest Name</b> • Quest Name ห้ามซ้ำวันเดียวกัน
-          </div>
-
           <div class="divider"></div>
 
           <div class="row two">
             <div>
-              <button id="exportBtn" class="secondary" type="button" style="width:100%;padding:10px 12px;font-size:13px;">Export</button>
+              <button id="exportBtn" class="secondary" type="button" style="width:100%;">Export</button>
             </div>
             <div>
-              <button id="importBtn" class="secondary" type="button" style="width:100%;padding:10px 12px;font-size:13px;">Import</button>
+              <button id="importBtn" class="secondary" type="button" style="width:100%;">Import</button>
               <input id="importFile" type="file" accept="application/json" style="display:none;">
             </div>
           </div>
@@ -474,7 +542,7 @@ button:disabled{
         <div class="sectionHead"><h2>Report</h2></div>
 
         <div class="card" id="reportCard" style="display:none;">
-          <div class="badge">Report Quest</div>
+          <div class="badge">Report Quest • <b id="reportQuestTitle">----</b></div>
 
           <div class="row two" style="margin-top:12px;">
             <div>
@@ -500,9 +568,11 @@ button:disabled{
             <textarea id="notes" placeholder="ทำอะไร/ได้ insight อะไร/เปลี่ยนพฤติกรรมไหม"></textarea>
           </div>
 
-          <div class="btns" style="margin-top:12px;">
-            <button id="submitReportBtn" type="button">Submit Report</button>
-            <button id="discardBtn" class="secondary" type="button">Discard</button>
+          <div class="actionBar" style="margin-top:12px;">
+            <button id="submitReportBtn" class="primary" type="button">Submit</button>
+            <div class="pillBtns">
+              <button id="discardBtn" class="secondary" type="button">Discard</button>
+            </div>
           </div>
 
           <div class="ok" id="submitOk" style="display:none;"></div>
@@ -517,12 +587,12 @@ button:disabled{
     </div>
   </div>
 
-  <!-- HISTORY -->
+  <!-- HISTORY OVERLAY -->
   <div class="overlay" id="overlay">
     <div class="sheet">
       <div class="sheetHead">
         <div class="badge">History • <b id="histTitle">----</b></div>
-        <button id="closeOverlayBtn" class="secondary" type="button" style="padding:10px 12px;font-size:13px;">Close</button>
+        <button id="closeOverlayBtn" class="secondary" type="button" style="border-radius:999px;padding:8px 10px;font-size:12px;">Close</button>
       </div>
 
       <div class="sheetGrid">
@@ -542,14 +612,16 @@ button:disabled{
 /* =========================================================
   [BOX A] CONFIG
 ========================================================= */
-const KEY_STATE  = "qps_timer_state_v2";
-const KEY_DATA   = "qpsData_v2";
-const KEY_STREAK = "qps_streak_v1";
+const KEY_STATE   = "qps_timer_state_v3";
+const KEY_DATA    = "qpsData_v2";      // ✅ ใช้อันเดิม เพื่อไม่ทำ log หาย
+const KEY_STREAK  = "qps_streak_v1";
+const KEY_UNDO    = "qps_undo_stack_v1"; // per-day stack
+const KEY_REDO    = "qps_redo_stack_v1"; // per-day stack
 
 const RULES = {
   basePerMinute: 0.4,
-  bonusMinMinutes: 30,     // ต่ำกว่านี้ bonus = 0 ล็อก
-  baseCapPerQuestName: 60, // ✅ นาที/วัน/ต่อ Quest Name (แทนหมวด)
+  bonusMinMinutes: 30,
+  baseCapPerQuest: 60,   // ✅ ใหม่: cap ต่อ “ชื่อเควส” ต่อวัน
 };
 
 /* =========================================================
@@ -560,6 +632,9 @@ function localDateKey(d = new Date()){
   const m=String(d.getMonth()+1).padStart(2,"0");
   const day=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${day}`;
+}
+function normalizeQuestName(name){
+  return String(name||"").trim().replace(/\s+/g," ").toLowerCase();
 }
 function formatHMS(ms){
   const s=Math.max(0,Math.floor(ms/1000));
@@ -578,14 +653,6 @@ function scrollToId(id){
   const el = document.getElementById(id);
   if(!el) return;
   el.scrollIntoView({ behavior:"smooth", block:"start" });
-}
-function normalizeQuestName(name){
-  return String(name ?? "").trim().replace(/\s+/g, " ");
-}
-function showInlineWarn(msg){
-  el.timerWarn.style.display="block";
-  el.timerWarn.textContent=msg;
-  setTimeout(()=>{ el.timerWarn.style.display="none"; el.timerWarn.textContent=""; }, 2400);
 }
 
 /* =========================================================
@@ -622,26 +689,26 @@ function listDays(){
   return Object.keys(data).sort().reverse();
 }
 
-/* ✅ นาที base ที่ใช้ไปแล้ว “ต่อ Quest Name” ในวันนั้น */
-function calcQuestNameBaseMinutesUsed(dateKey, questNameNormalized){
+/* ✅ ใหม่: นับ baseMinutesUsed ต่อ “ชื่อเควส” */
+function calcQuestBaseMinutesUsed(dateKey, questKeyNorm){
   const data = loadAll();
   const day = data[dateKey];
   if(!day || !Array.isArray(day.quests)) return 0;
   return day.quests
-    .filter(x => (x.questKey || "") === questNameNormalized)
+    .filter(x => normalizeQuestName(x.questName) === questKeyNorm)
     .reduce((s,x) => s + (Number(x.baseMinutesUsed)||0), 0);
 }
 
-/* ✅ กันชื่อซ้ำ: วันเดียวกันมี questKey นี้อยู่แล้วไหม */
-function isQuestNameDuplicateForDay(dateKey, questNameNormalized){
+/* ✅ ใหม่: ตรวจชื่อซ้ำ (ห้ามซ้ำในวันเดียว) */
+function isDuplicateQuestName(dateKey, questKeyNorm){
   const data = loadAll();
   const day = data[dateKey];
   if(!day || !Array.isArray(day.quests)) return false;
-  return day.quests.some(x => (x.questKey || "") === questNameNormalized);
+  return day.quests.some(x => normalizeQuestName(x.questName) === questKeyNorm);
 }
 
 /* =========================================================
-  [BOX D] STREAK (จาก log จริง)
+  [BOX D] STREAK
 ========================================================= */
 function loadStreak(){
   const raw = localStorage.getItem(KEY_STREAK);
@@ -676,9 +743,7 @@ function computeStreakFromLogs(){
 }
 function renderStreak(){
   const s = loadStreak();
-  const pill = document.getElementById("streakPill");
-  if(!pill) return;
-  pill.innerHTML = `🔥 Streak: <b>${s.current}</b> • Best: <b>${s.best}</b>`;
+  el.streakPill.innerHTML = `🔥 Streak: <b>${s.current}</b> • Best: <b>${s.best}</b>`;
 }
 function updateStreakAfterChange(){
   const s = loadStreak();
@@ -691,7 +756,51 @@ function updateStreakAfterChange(){
 }
 
 /* =========================================================
-  [BOX E] ELEMENTS
+  [BOX E] UNDO/REDO (หลายขั้น)
+========================================================= */
+function loadStack(key){
+  try { return JSON.parse(localStorage.getItem(key)) || {}; }
+  catch { return {}; }
+}
+function saveStack(key, obj){
+  localStorage.setItem(key, JSON.stringify(obj));
+}
+function pushUndo(dateKey, entry){
+  const s = loadStack(KEY_UNDO);
+  if(!Array.isArray(s[dateKey])) s[dateKey] = [];
+  s[dateKey].push(entry);
+  saveStack(KEY_UNDO, s);
+}
+function popUndo(dateKey){
+  const s = loadStack(KEY_UNDO);
+  const arr = Array.isArray(s[dateKey]) ? s[dateKey] : [];
+  const v = arr.pop();
+  s[dateKey] = arr;
+  saveStack(KEY_UNDO, s);
+  return v;
+}
+function pushRedo(dateKey, entry){
+  const s = loadStack(KEY_REDO);
+  if(!Array.isArray(s[dateKey])) s[dateKey] = [];
+  s[dateKey].push(entry);
+  saveStack(KEY_REDO, s);
+}
+function popRedo(dateKey){
+  const s = loadStack(KEY_REDO);
+  const arr = Array.isArray(s[dateKey]) ? s[dateKey] : [];
+  const v = arr.pop();
+  s[dateKey] = arr;
+  saveStack(KEY_REDO, s);
+  return v;
+}
+function clearRedo(dateKey){
+  const s = loadStack(KEY_REDO);
+  s[dateKey] = [];
+  saveStack(KEY_REDO, s);
+}
+
+/* =========================================================
+  [BOX F] ELEMENTS
 ========================================================= */
 const el = {
   todayText: document.getElementById("todayText"),
@@ -700,10 +809,12 @@ const el = {
 
   category: document.getElementById("category"),
   questName: document.getElementById("questName"),
+  questRuleHint: document.getElementById("questRuleHint"),
 
   timerText: document.getElementById("timerText"),
   timerHint: document.getElementById("timerHint"),
   timerWarn: document.getElementById("timerWarn"),
+  capPerQuestText: document.getElementById("capPerQuestText"),
 
   startBtn: document.getElementById("startBtn"),
   stopBtn: document.getElementById("stopBtn"),
@@ -711,6 +822,7 @@ const el = {
   resumeBtn: document.getElementById("resumeBtn"),
 
   reportCard: document.getElementById("reportCard"),
+  reportQuestTitle: document.getElementById("reportQuestTitle"),
   reportMinutes: document.getElementById("reportMinutes"),
   qualityBonus: document.getElementById("qualityBonus"),
   notes: document.getElementById("notes"),
@@ -726,6 +838,8 @@ const el = {
   todayList: document.getElementById("todayList"),
 
   historyBtn: document.getElementById("historyBtn"),
+  undoBtn: document.getElementById("undoBtn"),
+  redoBtn: document.getElementById("redoBtn"),
   resetTodayBtn: document.getElementById("resetTodayBtn"),
 
   exportBtn: document.getElementById("exportBtn"),
@@ -740,7 +854,7 @@ const el = {
 };
 
 /* =========================================================
-  [BOX F] TIMER STATE
+  [BOX G] TIMER STATE
 ========================================================= */
 let state = {
   status: "idle",      // idle | running | paused | stopped
@@ -749,7 +863,6 @@ let state = {
   startDateKey: null,
   selectedCategory: "Learning",
   questName: "",
-  questKey: "",        // ✅ normalized quest name
   lastElapsedMs: 0,
 };
 let tickHandle = null;
@@ -765,7 +878,7 @@ function loadState(){
 }
 
 /* =========================================================
-  [BOX G] UI RENDER
+  [BOX H] UI RENDER
 ========================================================= */
 function setReportVisible(v){
   el.reportCard.style.display = v ? "block" : "none";
@@ -787,10 +900,12 @@ function renderTimer(){
   const ms = (state.status==="stopped") ? state.lastElapsedMs : computeElapsedMs();
   el.timerText.textContent = formatHMS(ms);
 
-  if(state.status==="idle") el.timerHint.textContent = "ใส่ Quest Name แล้วกด Start (ห้ามซ้ำในวันเดียวกัน)";
-  else if(state.status==="running") el.timerHint.textContent = `กำลังจับเวลา • ${state.questKey} • ${state.startDateKey}`;
+  if(state.status==="idle") el.timerHint.textContent = "ตั้งชื่อเควส แล้วกด Start";
+  else if(state.status==="running") el.timerHint.textContent = `กำลังจับเวลา • ${state.selectedCategory} • ${state.startDateKey}`;
   else if(state.status==="paused") el.timerHint.textContent = "Paused • Resume หรือ Stop";
   else el.timerHint.textContent = "Stopped • ส่ง Report เพื่อบันทึกคะแนน";
+
+  el.capPerQuestText.textContent = String(RULES.baseCapPerQuest);
 }
 function renderControls(){
   el.startBtn.disabled = state.status !== "idle";
@@ -805,6 +920,22 @@ function renderControls(){
   if(state.status==="idle"){
     el.category.value = state.selectedCategory || "Learning";
     el.questName.value = state.questName || "";
+  }
+}
+function renderQuestRuleHint(){
+  const todayKey = localDateKey();
+  const q = normalizeQuestName(el.questName.value);
+  if(!q){
+    el.questRuleHint.textContent = "ต้องมีชื่อเควส (ห้ามปล่อยว่าง)";
+    return;
+  }
+  const dup = isDuplicateQuestName(todayKey, q);
+  if(dup){
+    el.questRuleHint.textContent = "⚠️ ชื่อนี้ถูกใช้แล้ววันนี้ (ห้ามซ้ำ)";
+  }else{
+    const used = calcQuestBaseMinutesUsed(todayKey, q);
+    const remain = Math.max(0, RULES.baseCapPerQuest - used);
+    el.questRuleHint.textContent = `วันนี้ชื่อนี้ใช้ Base ไปแล้ว ${used} นาที • เหลือ ${remain} นาที`;
   }
 }
 function renderToday(){
@@ -844,6 +975,12 @@ function renderToday(){
     `;
   }).join("");
 }
+function showWarn(msg){
+  el.timerWarn.style.display="block";
+  el.timerWarn.textContent=msg;
+  clearTimeout(showWarn._t);
+  showWarn._t = setTimeout(()=>{ el.timerWarn.style.display="none"; el.timerWarn.textContent=""; }, 2200);
+}
 function clearSubmitMessages(){
   el.submitOk.style.display="none"; el.submitWarn.style.display="none";
   el.submitOk.textContent=""; el.submitWarn.textContent="";
@@ -853,11 +990,12 @@ function updateUI(){
   renderTimer();
   renderControls();
   renderToday();
+  renderQuestRuleHint();
   setReportVisible(state.status==="stopped");
 }
 
 /* =========================================================
-  [BOX H] TICK
+  [BOX I] TICK
 ========================================================= */
 function startTick(){
   if(tickHandle) return;
@@ -868,7 +1006,7 @@ function startTick(){
 }
 
 /* =========================================================
-  [BOX I] RULES
+  [BOX J] RULES (bonus lock + cap hint)
 ========================================================= */
 function applyBonusRule(minutes){
   if(minutes < RULES.bonusMinMinutes){
@@ -880,36 +1018,39 @@ function applyBonusRule(minutes){
     el.bonusRuleHint.textContent = `Bonus ใช้ได้ (เวลา ≥ ${RULES.bonusMinMinutes} นาที)`;
   }
 }
-function updateCapHint(dateKey, questKey){
-  const used = calcQuestNameBaseMinutesUsed(dateKey, questKey);
-  const remaining = Math.max(0, RULES.baseCapPerQuestName - used);
-  el.capHint.textContent =
-    `Base cap/วัน/เควส = ${RULES.baseCapPerQuestName} นาที • วันนี้ "${questKey}" ใช้ไปแล้ว ${used} นาที • เหลือ ${remaining} นาที`;
+function updateCapHint(dateKey, questKeyNorm){
+  const used = calcQuestBaseMinutesUsed(dateKey, questKeyNorm);
+  const remaining = Math.max(0, RULES.baseCapPerQuest - used);
+  el.capHint.textContent = `Cap ต่อเควส/วัน = ${RULES.baseCapPerQuest} นาที • ชื่อนี้ใช้ Base แล้ว ${used} นาที • เหลือ ${remaining} นาที`;
 }
 
 /* =========================================================
-  [BOX J] ACTIONS
+  [BOX K] ACTIONS (Timer -> Report -> Save)
 ========================================================= */
+function validateQuestNameOrWarn(){
+  const qRaw = (el.questName.value || "").trim();
+  const qNorm = normalizeQuestName(qRaw);
+  const todayKey = localDateKey();
+
+  if(!qNorm){
+    showWarn("ต้องใส่ Quest Name ก่อน");
+    return { ok:false };
+  }
+  if(isDuplicateQuestName(todayKey, qNorm)){
+    showWarn("ชื่อนี้ซ้ำในวันนี้ — เปลี่ยนชื่อก่อน");
+    return { ok:false };
+  }
+  return { ok:true, qRaw, qNorm, todayKey };
+}
+
 function startQuest(){
-  const dateKey = localDateKey();
-  const qn = normalizeQuestName(el.questName.value);
-
-  if(!qn){
-    showInlineWarn("ต้องใส่ Quest Name ก่อนเริ่ม");
-    return;
-  }
-
-  // ✅ กันชื่อซ้ำในวันเดียวกัน
-  if(isQuestNameDuplicateForDay(dateKey, qn)){
-    showInlineWarn(`Quest Name "${qn}" วันนี้มีแล้ว ❌ (ห้ามซ้ำ)`);
-    return;
-  }
+  const v = validateQuestNameOrWarn();
+  if(!v.ok) return;
 
   state.status="running";
   state.selectedCategory = el.category.value;
-  state.questName = el.questName.value || "";
-  state.questKey = qn;
-  state.startDateKey = dateKey;
+  state.questName = v.qRaw;
+  state.startDateKey = localDateKey();
   state.startTs = Date.now();
   state.elapsedBefore = 0;
   state.lastElapsedMs = 0;
@@ -953,12 +1094,14 @@ function stopQuest(){
   applyBonusRule(minutes);
 
   const dateKey = state.startDateKey || localDateKey();
-  updateCapHint(dateKey, state.questKey);
+  const qNorm = normalizeQuestName(state.questName);
+  updateCapHint(dateKey, qNorm);
+
+  el.reportQuestTitle.textContent = state.questName || "----";
 
   setReportVisible(true);
   clearSubmitMessages();
   updateUI();
-
   scrollToId("sec-report");
 }
 function discardReport(){
@@ -967,7 +1110,6 @@ function discardReport(){
   state.elapsedBefore=0;
   state.lastElapsedMs=0;
   state.startDateKey=null;
-  state.questKey="";
   saveState();
 
   setReportVisible(false);
@@ -984,21 +1126,29 @@ function submitReport(){
     return;
   }
 
-  applyBonusRule(minutes);
-  const bonus = el.qualityBonus.disabled ? 0 : Number(el.qualityBonus.value||0);
-
+  const qRaw = (state.questName || "").trim();
+  const qNorm = normalizeQuestName(qRaw);
   const dateKey = state.startDateKey || localDateKey();
-  const questKey = state.questKey || normalizeQuestName(state.questName || "");
 
-  if(!questKey){
+  if(!qNorm){
     el.submitWarn.style.display="block";
-    el.submitWarn.textContent="Quest Name หาย (ลอง Discard แล้วเริ่มใหม่)";
+    el.submitWarn.textContent="Quest Name หาย/ว่าง — Discard แล้วเริ่มใหม่";
     return;
   }
 
-  // ✅ cap 60 นาทีต่อวัน “ต่อ quest name”
-  const used = calcQuestNameBaseMinutesUsed(dateKey, questKey);
-  const remaining = Math.max(0, RULES.baseCapPerQuestName - used);
+  // ✅ กันชื่อซ้ำ “เผื่อเคสแปลก” (แม้ตอน Start จะกันแล้ว)
+  if(isDuplicateQuestName(dateKey, qNorm)){
+    el.submitWarn.style.display="block";
+    el.submitWarn.textContent="ชื่อนี้ถูกใช้แล้ววันนี้ (ห้ามซ้ำ) — เปลี่ยนชื่อแล้วเริ่มใหม่";
+    return;
+  }
+
+  applyBonusRule(minutes);
+  const bonus = el.qualityBonus.disabled ? 0 : Number(el.qualityBonus.value||0);
+
+  // ✅ cap ต่อเควส
+  const used = calcQuestBaseMinutesUsed(dateKey, qNorm);
+  const remaining = Math.max(0, RULES.baseCapPerQuest - used);
   const baseMinutesUsed = Math.min(minutes, remaining);
 
   const baseScore = baseMinutesUsed * RULES.basePerMinute;
@@ -1008,8 +1158,7 @@ function submitReport(){
     ts: Date.now(),
     dateKey,
     category: state.selectedCategory,
-    questName: state.questName || questKey,
-    questKey, // ✅ key สำหรับ cap + uniqueness
+    questName: qRaw,
     minutesSpent: minutes,
     baseMinutesUsed,
     baseScore: round1(baseScore),
@@ -1024,6 +1173,9 @@ function submitReport(){
   recalcDayTotal(day);
   saveAll(data);
 
+  // ✅ undo: เมื่อมี action ใหม่ ให้ล้าง redo ของวันนั้น
+  clearRedo(dateKey);
+
   updateStreakAfterChange();
 
   el.submitOk.style.display="block";
@@ -1035,7 +1187,56 @@ function submitReport(){
   setTimeout(()=>{
     discardReport();
     renderToday();
-  }, 350);
+  }, 320);
+}
+
+/* =========================================================
+  [BOX L] TODAY ACTIONS (Undo/Redo/Reset)
+========================================================= */
+function undoToday(){
+  const todayKey = localDateKey();
+  const data = loadAll();
+  const day = data[todayKey];
+  if(!day || !Array.isArray(day.quests) || day.quests.length===0){
+    showWarn("ไม่มีอะไรให้ Undo");
+    return;
+  }
+  const removed = day.quests.pop();
+  recalcDayTotal(day);
+  saveAll(data);
+
+  pushUndo(todayKey, removed);
+  updateStreakAfterChange();
+  updateUI();
+  showWarn("Undo ✅");
+}
+function redoToday(){
+  const todayKey = localDateKey();
+  const entry = popUndo(todayKey);
+  if(!entry){
+    showWarn("ไม่มีอะไรให้ Redo");
+    return;
+  }
+  // redo = เอากลับเข้า day.quests
+  const data = loadAll();
+  const day = ensureDay(data, todayKey);
+
+  // กันซ้ำ: ถ้าชื่อมันชนแล้ว (เพราะมึงเพิ่มอันใหม่หลัง undo) ก็ไม่ให้ redo
+  const qNorm = normalizeQuestName(entry.questName);
+  if(isDuplicateQuestName(todayKey, qNorm)){
+    showWarn("Redo ไม่ได้: ชื่อเควสซ้ำแล้ววันนี้");
+    // เอากลับเข้า undo เหมือนเดิม
+    pushUndo(todayKey, entry);
+    return;
+  }
+
+  day.quests.push(entry);
+  recalcDayTotal(day);
+  saveAll(data);
+
+  updateStreakAfterChange();
+  updateUI();
+  showWarn("Redo ✅");
 }
 function resetToday(){
   const todayKey = localDateKey();
@@ -1046,20 +1247,24 @@ function resetToday(){
   data[todayKey] = { totalQps:0, quests:[] };
   saveAll(data);
 
+  // เคลียร์ undo/redo ของวันนี้
+  const u = loadStack(KEY_UNDO); u[todayKey] = []; saveStack(KEY_UNDO, u);
+  const r = loadStack(KEY_REDO); r[todayKey] = []; saveStack(KEY_REDO, r);
+
   updateStreakAfterChange();
-  renderToday();
-  showInlineWarn("เคลียร์ข้อมูลวันนี้แล้ว");
+  updateUI();
+  showWarn("เคลียร์ข้อมูลวันนี้แล้ว");
 }
 
 /* =========================================================
-  [BOX K] HISTORY
+  [BOX M] HISTORY OVERLAY
 ========================================================= */
 let selectedDay = null;
 
 function openHistory(){
   const days = listDays();
   if(days.length===0){
-    showInlineWarn("ยังไม่มีข้อมูลย้อนหลัง");
+    showWarn("ยังไม่มีข้อมูลย้อนหลัง");
     return;
   }
   el.overlay.classList.add("show");
@@ -1067,9 +1272,7 @@ function openHistory(){
   renderHistoryDays();
   renderDayView(selectedDay);
 }
-function closeHistory(){
-  el.overlay.classList.remove("show");
-}
+function closeHistory(){ el.overlay.classList.remove("show"); }
 function renderHistoryDays(){
   const days = listDays();
   const data = loadAll();
@@ -1103,8 +1306,9 @@ function renderDayView(dayKey){
     <div class="list">
       ${log.map(item=>{
         const name = item.questName?.trim()? item.questName.trim() : "(no name)";
-        const capNote = (Number(item.baseMinutesUsed||0) < Number(item.minutesSpent||0))
-          ? ` • cap: counted ${item.baseMinutesUsed}/${item.minutesSpent} min` : "";
+        const mins = Number(item.minutesSpent||0);
+        const baseMins = Number(item.baseMinutesUsed||0);
+        const capNote = (baseMins < mins) ? ` • cap: ${baseMins}/${mins} min` : "";
         return `
           <div class="item">
             <div class="itemTop">
@@ -1112,7 +1316,7 @@ function renderDayView(dayKey){
               <div class="itemScore">+${Number(item.questScore||0).toFixed(1)}</div>
             </div>
             <div class="itemMeta">
-              ${escapeHtml(item.category)} • ${item.minutesSpent} min • base ${Number(item.baseScore||0).toFixed(1)} + bonus ${item.qualityBonus||0}${capNote}
+              ${escapeHtml(item.category)} • ${mins} min • base ${Number(item.baseScore||0).toFixed(1)} + bonus ${item.qualityBonus||0}${capNote}
             </div>
             ${item.notes ? `<div class="itemMeta" style="margin-top:8px;">📝 ${escapeHtml(item.notes)}</div>` : ``}
           </div>
@@ -1123,7 +1327,7 @@ function renderDayView(dayKey){
 }
 
 /* =========================================================
-  [BOX L] EXPORT / IMPORT
+  [BOX N] EXPORT / IMPORT
 ========================================================= */
 function downloadJson(filename, obj){
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type:"application/json" });
@@ -1153,7 +1357,7 @@ function exportData(){
     data: loadAll()
   };
   downloadJson(`qpsData_v2_${localDateKey()}.json`, payload);
-  showInlineWarn("Exported ✅ (ดูไฟล์ใน Downloads)");
+  showWarn("Exported ✅");
 }
 function importDataObject(imported, mode="merge"){
   const raw = imported?.data ?? imported;
@@ -1170,11 +1374,6 @@ function importDataObject(imported, mode="merge"){
       const incomingDay = raw[dayKey];
       const target = ensureDay(cur, dayKey);
       target.quests = target.quests.concat(incomingDay.quests || []);
-      // รองรับไฟล์เก่าที่ไม่มี questKey: เติมให้จาก questName
-      target.quests = target.quests.map(q=>{
-        if(!q.questKey) q.questKey = normalizeQuestName(q.questName || "");
-        return q;
-      });
       recalcDayTotal(target);
     }
     saveAll(cur);
@@ -1189,7 +1388,7 @@ function importDataObject(imported, mode="merge"){
     renderDayView(selectedDay);
   }
 
-  showInlineWarn(`Imported ✅ (${mode.toUpperCase()})`);
+  showWarn(`Imported ✅ (${mode.toUpperCase()})`);
 }
 async function importFromFile(file){
   const text = await file.text();
@@ -1205,66 +1404,59 @@ async function importFromFile(file){
 }
 
 /* =========================================================
-  [BOX M] EVENTS (กันพัง)
+  [BOX O] EVENTS
 ========================================================= */
-function on(target, event, handler, name){
-  if(!target){
-    alert(`ERROR: element หาย -> ${name}`);
-    return;
-  }
-  target.addEventListener(event, handler);
-}
+el.startBtn.addEventListener("click", startQuest);
+el.pauseBtn.addEventListener("click", pauseQuest);
+el.resumeBtn.addEventListener("click", resumeQuest);
+el.stopBtn.addEventListener("click", stopQuest);
 
-on(el.startBtn, "click", startQuest, "startBtn");
-on(el.pauseBtn, "click", pauseQuest, "pauseBtn");
-on(el.resumeBtn, "click", resumeQuest, "resumeBtn");
-on(el.stopBtn, "click", stopQuest, "stopBtn");
-
-on(el.reportMinutes, "input", ()=>{
+el.reportMinutes.addEventListener("input", ()=>{
   const minutes = Number(el.reportMinutes.value);
   if(Number.isFinite(minutes)) applyBonusRule(minutes);
-}, "reportMinutes");
+});
 
-on(el.submitReportBtn, "click", submitReport, "submitReportBtn");
-on(el.discardBtn, "click", discardReport, "discardBtn");
-on(el.resetTodayBtn, "click", resetToday, "resetTodayBtn");
+el.submitReportBtn.addEventListener("click", submitReport);
+el.discardBtn.addEventListener("click", discardReport);
 
-on(el.historyBtn, "click", openHistory, "historyBtn");
-on(el.closeOverlayBtn, "click", closeHistory, "closeOverlayBtn");
-on(el.overlay, "click", (e)=>{ if(e.target===el.overlay) closeHistory(); }, "overlay");
-
-on(el.exportBtn, "click", exportData, "exportBtn");
-on(el.importBtn, "click", ()=>{
-  el.importFile.value = "";
-  el.importFile.click();
-}, "importBtn");
-on(el.importFile, "change", async ()=>{
-  const file = el.importFile.files?.[0];
-  if(!file) return;
-  await importFromFile(file);
-}, "importFile");
-
-on(el.category, "change", ()=>{
+el.category.addEventListener("change", ()=>{
   if(state.status==="idle"){
     state.selectedCategory = el.category.value;
     saveState();
   }
-}, "category");
-on(el.questName, "input", ()=>{
+});
+el.questName.addEventListener("input", ()=>{
   if(state.status==="idle"){
     state.questName = el.questName.value || "";
     saveState();
+    renderQuestRuleHint();
   }
-}, "questName");
+});
+
+el.historyBtn.addEventListener("click", openHistory);
+el.closeOverlayBtn.addEventListener("click", closeHistory);
+el.overlay.addEventListener("click", (e)=>{ if(e.target===el.overlay) closeHistory(); });
+
+el.undoBtn.addEventListener("click", undoToday);
+el.redoBtn.addEventListener("click", redoToday);
+el.resetTodayBtn.addEventListener("click", resetToday);
+
+el.exportBtn.addEventListener("click", exportData);
+el.importBtn.addEventListener("click", ()=>{
+  el.importFile.value = "";
+  el.importFile.click();
+});
+el.importFile.addEventListener("change", async ()=>{
+  const file = el.importFile.files?.[0];
+  if(!file) return;
+  await importFromFile(file);
+});
 
 /* =========================================================
-  [BOX N] BOOT
+  [BOX P] BOOT
 ========================================================= */
 function boot(){
   loadState();
-
-  // กัน overlay ค้างทับหน้าจอ
-  el.overlay.classList.remove("show");
 
   // ถ้า state หลุด (running แต่ไม่มี startTs) -> paused
   if(state.status==="running" && !state.startTs){
@@ -1273,7 +1465,6 @@ function boot(){
     saveState();
   }
 
-  // โหลดค่าฟอร์ม
   if(state.status==="idle"){
     el.category.value = state.selectedCategory || "Learning";
     el.questName.value = state.questName || "";
