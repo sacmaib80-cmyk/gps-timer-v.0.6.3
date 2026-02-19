@@ -396,17 +396,31 @@ button:disabled{ opacity:.45; cursor:not-allowed; }
   margin-top: 12px;
 }
 .onBtns button{ padding: 10px 12px; font-size: 13px; border-radius: 14px; }
+/* ===== FIX REPORT BUTTONS PROPER ===== */
 
-/* small utilities */
-.inlineHelp{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
+#reportCard .btns{
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.miniRight{
-  display:flex; gap:8px; flex-wrap:wrap;
+
+/* Submit ยืดกินพื้นที่ที่เหลือ */
+#submitReportBtn{
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 16px;
 }
-.smallBtn{ padding:10px 12px; font-size:13px; border-radius: 14px; }
+
+/* Discard อยู่ขวาสุด ขนาดปกติ */
+#discardBtn{
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-radius: 12px;
+}
+
   </style>
 </head>
 
@@ -573,8 +587,8 @@ button:disabled{ opacity:.45; cursor:not-allowed; }
           <div class="btns" style="margin-top:12px;">
             <button id="submitReportBtn" type="button">Submit</button>
             <button id="discardBtn" class="secondary" type="button">Discard</button>
-            <button id="helpReportBtn" class="secondary" type="button">Help</button>
-            <button id="factoryResetBtn" class="danger" type="button">Factory Reset</button>
+            
+        
           </div>
 
           <div class="ok" id="submitOk" style="display:none;"></div>
