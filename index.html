@@ -3,446 +3,456 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>QPS Timer v0.4 (Stable + Help)</title>
+  <title>QPS Timer v0.4.2 (update UX set time)</title>
 
   <style>
-/* =========================================================
-  [BOX 0] THEME
-========================================================= */
-:root{
-  --bg:#f6f9ff;
-  --bg2:#eef7ff;
+    :root{
+      --bg:#f6f9ff;
+      --bg2:#eef7ff;
 
-  --card:#ffffff;
-  --ink:#0f172a;
-  --muted:#64748b;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
 
-  --accent:#22c55e;     /* green */
-  --accent2:#60a5fa;    /* blue */
-  --warn:#fb7185;       /* pink-red */
-  --gold:#f59e0b;
+      --accent:#22c55e;
+      --accent2:#60a5fa;
+      --warn:#fb7185;
+      --gold:#f59e0b;
 
-  --border: rgba(15,23,42,.12);
-  --shadow: 0 12px 28px rgba(2,6,23,.10);
+      --border: rgba(15,23,42,.12);
+      --shadow: 0 12px 28px rgba(2,6,23,.10);
 
-  --r:16px;
-  --r2:22px;
+      --r:16px;
+      --r2:22px;
 
-  --focus: rgba(96,165,250,.35);
-}
+      --focus: rgba(96,165,250,.35);
+    }
 
-/* reset */
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  color:var(--ink);
-  background:
-    radial-gradient(1100px 700px at 12% 8%, rgba(96,165,250,.26), transparent 55%),
-    radial-gradient(1000px 700px at 86% 18%, rgba(34,197,94,.22), transparent 52%),
-    radial-gradient(900px 700px at 48% 92%, rgba(245,158,11,.14), transparent 60%),
-    linear-gradient(180deg, var(--bg), var(--bg2));
-  overflow:hidden;
-}
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1100px 700px at 12% 8%, rgba(96,165,250,.26), transparent 55%),
+        radial-gradient(1000px 700px at 86% 18%, rgba(34,197,94,.22), transparent 52%),
+        radial-gradient(900px 700px at 48% 92%, rgba(245,158,11,.14), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      overflow:hidden;
+    }
 
-/* =========================================================
-  [BOX 1] APP LAYOUT
-========================================================= */
-.app{
-  height:100vh;
-  overflow-y:auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 14px 12px 56px;
-}
-.container{ max-width: 980px; margin: 0 auto; }
+    .app{
+      height:100vh;
+      overflow-y:auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 12px 56px;
 
-/* sticky topbar */
-.topbar{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  margin: 0 auto 12px;
-  padding: 10px 10px 12px;
-  background: linear-gradient(180deg, rgba(246,249,255,.98), rgba(246,249,255,.84), rgba(246,249,255,.00));
-  backdrop-filter: blur(10px);
-}
-.topbarRow{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-}
-.brand h1{ margin:0; font-size: 18px; line-height:1.2; display:flex; align-items:center; gap:10px; }
-.brand .sub{ margin:6px 0 0; color:var(--muted); font-size:12px; }
+      /* ✅ tooltip anchor */
+      position: relative;
+    }
+    .container{ max-width: 860px; margin: 0 auto; }
 
-.pills{
-  display:flex; gap:8px; align-items:flex-start;
-  flex-wrap:wrap; justify-content:flex-end;
-}
-.pill{
-  display:inline-flex; align-items:center; gap:8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.92);
-  border: 1px solid var(--border);
-  box-shadow: 0 6px 14px rgba(2,6,23,.06);
-  font-size:12px; color:var(--muted);
-}
-.pill b{ color:var(--ink); }
+    /* topbar */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      margin: 0 auto 12px;
+      padding: 10px 10px 12px;
+      background: linear-gradient(180deg, rgba(246,249,255,.98), rgba(246,249,255,.84), rgba(246,249,255,.00));
+      backdrop-filter: blur(10px);
+    }
+    .topbarRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand h1{ margin:0; font-size: 18px; line-height:1.2; display:flex; align-items:center; gap:10px; }
+    .brand .sub{ margin:6px 0 0; color:var(--muted); font-size:12px; }
 
-.jump{
-  display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;
-}
-.jump button{
-  padding: 9px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-}
+    .pills{
+      display:flex; gap:8px; align-items:flex-start;
+      flex-wrap:wrap; justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 14px rgba(2,6,23,.06);
+      font-size:12px; color:var(--muted);
+    }
+    .pill b{ color:var(--ink); }
 
-/* sections */
-.section{ margin-top: 12px; scroll-margin-top: 110px; }
-.sectionHead{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  margin: 6px 2px 10px;
-}
-.sectionHead h2{
-  margin:0;
-  font-size: 13px;
-  color: var(--muted);
-  letter-spacing:.2px;
-  display:flex; align-items:center; gap:8px;
-}
+    .jump{
+      display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;
+    }
+    .jump button{
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
 
-/* cards */
-.card{
-  background: rgba(255,255,255,.94);
-  border: 1px solid var(--border);
-  border-radius: var(--r2);
-  box-shadow: var(--shadow);
-  padding: 14px;
-}
-.divider{ height:1px; background: var(--border); margin: 12px 0; }
+    .section{ margin-top: 12px; scroll-margin-top: 110px; }
+    .sectionHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin: 6px 2px 10px;
+    }
+    .sectionHead h2{
+      margin:0;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing:.2px;
+      display:flex; align-items:center; gap:8px;
+    }
 
-.row{ display:grid; gap:10px; grid-template-columns: 1fr; }
-.row.two{ grid-template-columns: 1fr; }
-@media(min-width:720px){
-  .row.two{ grid-template-columns: 1fr 1fr; }
-}
+    .card{
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .divider{ height:1px; background: var(--border); margin: 12px 0; }
 
-label{ display:block; color:var(--muted); font-size: 12px; margin-bottom: 6px; }
-input,select,textarea{
-  width:100%;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: white;
-  color: var(--ink);
-  padding: 12px;
-  outline:none;
-  font-size: 14px;
-}
-input:focus,select:focus,textarea:focus{
-  border-color: rgba(96,165,250,.55);
-  box-shadow: 0 0 0 4px var(--focus);
-}
-textarea{ min-height: 96px; resize: vertical; }
+    .row{ display:grid; gap:10px; grid-template-columns: 1fr; }
+    .row.two{ grid-template-columns: 1fr; }
+    @media(min-width:720px){
+      .row.two{ grid-template-columns: 1fr 1fr; }
+    }
 
-/* buttons */
-button{
-  border:0;
-  border-radius: 14px;
-  padding: 11px 14px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor:pointer;
-  color: white;
-  background: linear-gradient(180deg, var(--accent), #16a34a);
-  box-shadow: 0 10px 20px rgba(34,197,94,.18);
-}
-button.secondary{
-  color: var(--ink);
-  background: rgba(2,6,23,.05);
-  border: 1px solid var(--border);
-  box-shadow:none;
-}
-button.danger{
-  color: #7f1d1d;
-  background: rgba(251,113,133,.20);
-  border: 1px solid rgba(251,113,133,.34);
-  box-shadow:none;
-}
-button:disabled{ opacity:.45; cursor:not-allowed; }
+    label{ display:block; color:var(--muted); font-size: 12px; margin-bottom: 6px; }
+    input,select,textarea{
+      width:100%;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--ink);
+      padding: 12px;
+      outline:none;
+      font-size: 14px;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color: rgba(96,165,250,.55);
+      box-shadow: 0 0 0 4px var(--focus);
+    }
+    textarea{ min-height: 96px; resize: vertical; }
 
-.btns{
-  display:grid;
-  gap:10px;
-  grid-template-columns: 1fr 1fr;
-}
-@media(min-width:720px){
-  .btns{ grid-template-columns: 1fr 1fr 1fr 1fr; }
-}
+    select{
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      height: 48px;
+      padding: 12px 40px 12px 12px;
+      background-color: white;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #64748b 50%),
+        linear-gradient(135deg, #64748b 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 12px) 50%;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
 
-/* timer */
-.timer{
-  font-variant-numeric: tabular-nums;
-  font-size: 44px;
-  letter-spacing: 1px;
-  margin: 10px 0 4px;
-}
-.hint{ color: var(--muted); font-size:12px; margin-top:8px; line-height:1.45; }
-.ok{ color:#15803d; font-size:12px; margin-top:8px; }
-.warnText{ color:#be123c; font-size:12px; margin-top:8px; }
+    button{
+      border:0;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor:pointer;
+      color: white;
+      background: linear-gradient(180deg, var(--accent), #16a34a);
+      box-shadow: 0 10px 20px rgba(34,197,94,.18);
+    }
+    button.secondary{
+      color: var(--ink);
+      background: rgba(2,6,23,.05);
+      border: 1px solid var(--border);
+      box-shadow:none;
+    }
+    button.danger{
+      color: #7f1d1d;
+      background: rgba(251,113,133,.20);
+      border: 1px solid rgba(251,113,133,.34);
+      box-shadow:none;
+    }
+    button:disabled{ opacity:.45; cursor:not-allowed; }
 
-/* today progress */
-.progressWrap{
-  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
-}
-.badge{
-  display:inline-flex; align-items:center; gap:8px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.86);
-  color: var(--muted);
-  font-size: 12px;
-}
-.badge b{ color: var(--ink); }
+    .btns{
+      display:grid;
+      gap:10px;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media(min-width:720px){
+      .btns{ grid-template-columns: 1fr 1fr 1fr 1fr; }
+    }
 
-.bar{
-  margin-top:12px;
-  background: rgba(2,6,23,.06);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  overflow:hidden;
-  height: 14px;
-}
-.bar > div{
-  height:100%;
-  width:0%;
-  background: linear-gradient(90deg, var(--accent2), var(--accent));
-  transition: width 240ms ease;
-}
+    .timer{
+      font-variant-numeric: tabular-nums;
+      font-size: 44px;
+      letter-spacing: 1px;
+      margin: 10px 0 4px;
+    }
+    .hint{ color: var(--muted); font-size:12px; margin-top:8px; line-height:1.45; }
+    .ok{ color:#15803d; font-size:12px; margin-top:8px; }
+    .warnText{ color:#be123c; font-size:12px; margin-top:8px; }
 
-/* list items */
-.list{ display:grid; gap:10px; margin-top: 12px; }
-.item{
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(255,255,255,.96);
-  padding: 10px 12px;
-}
-.itemTop{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
-.itemName{ font-weight: 900; }
-.itemMeta{ color: var(--muted); font-size: 12px; margin-top: 6px; }
-.itemScore{
-  font-weight: 950;
-  color: #16a34a;
-  font-variant-numeric: tabular-nums;
-}
+    .progressWrap{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.86);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .badge b{ color: var(--ink); }
 
-/* =========================================================
-  HELP ICON + TOOLTIP
-========================================================= */
-.helpBtn{
-  width:22px; height:22px;
-  border-radius: 999px;
-  display:inline-flex; align-items:center; justify-content:center;
-  font-weight: 950;
-  font-size: 12px;
-  color: rgba(15,23,42,.75);
-  background: rgba(2,6,23,.04);
-  border: 1px solid var(--border);
-  box-shadow:none;
-  padding:0;
-  cursor:pointer;
-}
-.helpBtn:hover{
-  background: rgba(96,165,250,.12);
-  border-color: rgba(96,165,250,.24);
-}
+    .miniRight{ display:flex; flex-wrap:wrap; gap:8px; }
+    .smallBtn{ padding: 9px 10px; font-size: 12px; border-radius: 12px; }
 
-.tooltip{
-  position: fixed;
-  z-index: 9998;
-  width: min(340px, calc(100vw - 24px));
-  background: rgba(255,255,255,.98);
-  border: 1px solid rgba(15,23,42,.16);
-  border-radius: 16px;
-  box-shadow: 0 16px 36px rgba(2,6,23,.18);
-  padding: 12px 12px 10px;
-  display:none;
-}
-.tooltip.show{ display:block; }
-.tooltip .tTitle{ font-weight: 950; margin: 0 0 6px; }
-.tooltip .tBody{ margin:0; color: var(--muted); font-size: 12px; line-height:1.5; white-space:pre-line; }
-.tooltip .tActions{ display:flex; justify-content:flex-end; margin-top:10px; }
-.tooltip .tActions button{ padding:8px 10px; font-size:12px; border-radius: 12px; }
+    .bar{
+      margin-top:12px;
+      background: rgba(2,6,23,.06);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow:hidden;
+      height: 14px;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      transition: width 240ms ease;
+    }
 
-.tipArrow{
-  position: fixed;
-  z-index: 9997;
-  width: 14px; height: 14px;
-  background: rgba(255,255,255,.98);
-  border-left: 1px solid rgba(15,23,42,.16);
-  border-top: 1px solid rgba(15,23,42,.16);
-  transform: rotate(45deg);
-  display:none;
-}
-.tipArrow.show{ display:block; }
+    .list{ display:grid; gap:10px; margin-top: 12px; }
+    .item{
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255,255,255,.96);
+      padding: 10px 12px;
+    }
+    .itemTop{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+    .itemName{ font-weight: 900; }
+    .itemMeta{ color: var(--muted); font-size: 12px; margin-top: 6px; }
+    .itemScore{
+      font-weight: 950;
+      color: #16a34a;
+      font-variant-numeric: tabular-nums;
+    }
 
-/* =========================================================
-  OVERLAY (History + Onboarding)
-========================================================= */
-.overlay{
-  position: fixed; inset: 0;
-  background: rgba(2,6,23,.45);
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  z-index: 9999;
-}
-.overlay.show{ display:flex; }
+    /* help tooltip */
+    .helpBtn{
+      width:22px; height:22px;
+      border-radius: 999px;
+      display:inline-flex; align-items:center; justify-content:center;
+      font-weight: 950;
+      font-size: 12px;
+      color: rgba(15,23,42,.75);
+      background: rgba(2,6,23,.04);
+      border: 1px solid var(--border);
+      box-shadow:none;
+      padding:0;
+      cursor:pointer;
+    }
+    .helpBtn:hover{
+      background: rgba(96,165,250,.12);
+      border-color: rgba(96,165,250,.24);
+    }
 
-.sheet{
-  width: min(980px, 100vw);
-  max-height: 86vh;
-  background: rgba(255,255,255,.98);
-  border: 1px solid var(--border);
-  border-radius: 22px 22px 0 0;
-  box-shadow: var(--shadow);
-  overflow:hidden;
-}
-.sheetHead{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(96,165,250,.12), rgba(255,255,255,.0));
-}
-.sheetGrid{
-  display:grid; gap:12px;
-  padding: 12px 14px 14px;
-  grid-template-columns: 1fr;
-}
-@media(min-width:820px){
-  .sheetGrid{ grid-template-columns: .9fr 1.1fr; }
-}
-.dayList{
-  max-height: 56vh;
-  overflow:auto;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(2,6,23,.03);
-  padding: 8px;
-}
-.dayBtn{
-  width:100%;
-  text-align:left;
-  padding: 10px 10px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  background: transparent;
-  font-weight: 900;
-  color: var(--ink);
-  cursor:pointer;
-}
-.dayBtn:hover{ background: rgba(96,165,250,.14); border-color: rgba(96,165,250,.22); }
-.dayBtn.active{ background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.22); }
+    /* ✅ FIXED -> ABSOLUTE within .app */
+    .tooltip{
+      position: absolute;
+      z-index: 9998;
+      width: min(340px, calc(100vw - 24px));
+      background: rgba(255,255,255,.98);
+      border: 1px solid rgba(15,23,42,.16);
+      border-radius: 16px;
+      box-shadow: 0 16px 36px rgba(2,6,23,.18);
+      padding: 12px 12px 10px;
+      display:none;
+      pointer-events: none;
+    }
+    .tooltip.show{
+      display:block;
+      pointer-events: auto;
+    }
+    .tooltip .tTitle{ font-weight: 950; margin: 0 0 6px; }
+    .tooltip .tBody{ margin:0; color: var(--muted); font-size: 12px; line-height:1.5; white-space:pre-line; }
+    .tooltip .tActions{ display:flex; justify-content:flex-end; margin-top:10px; }
+    .tooltip .tActions button{ padding:8px 10px; font-size:12px; border-radius: 12px; }
 
-.dayView{
-  max-height: 56vh;
-  overflow:auto;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(2,6,23,.03);
-  padding: 10px;
-}
+    .tipArrow{
+      position: absolute;
+      z-index: 9997;
+      width: 14px; height: 14px;
+      background: rgba(255,255,255,.98);
+      border-left: 1px solid rgba(15,23,42,.16);
+      border-top: 1px solid rgba(15,23,42,.16);
+      transform: rotate(45deg);
+      display:none;
+      pointer-events: none;
+    }
+    .tipArrow.show{ display:block; }
 
-/* Onboarding card */
-.onboard{
-  width: min(720px, calc(100vw - 24px));
-  background: rgba(255,255,255,.98);
-  border: 1px solid rgba(15,23,42,.16);
-  border-radius: 22px;
-  box-shadow: 0 18px 44px rgba(2,6,23,.22);
-  padding: 14px;
-  margin: 0 0 16px;
-}
-.onTop{
-  display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-}
-.onTitle{
-  margin:0;
-  font-size: 16px;
-  font-weight: 950;
-}
-.onSub{
-  margin:6px 0 0;
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.5;
-}
-.onSteps{
-  margin: 10px 0 0;
-  padding-left: 16px;
-  color: var(--ink);
-  font-size: 13px;
-  line-height: 1.55;
-}
-.onSteps li{ margin: 6px 0; }
-.onBtns{
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top: 12px;
-}
-.onBtns button{ padding: 10px 12px; font-size: 13px; border-radius: 14px; }
+    /* overlays */
+    .overlay{
+      position: fixed; inset: 0;
+      background: rgba(2,6,23,.45);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index: 9999;
+    }
+    .overlay.show{ display:flex; }
 
-/* =========================================================
-  REPORT BUTTONS FIX (Submit long + Discard right)
-========================================================= */
-#reportCard .btns{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-#submitReportBtn{
-  flex:1;
-  padding: 12px 16px;
-  font-size: 16px;
-  font-weight: 900;
-  border-radius: 16px;
-}
-#discardBtn{
-  flex:0 0 auto;
-  padding: 10px 14px;
-  font-size: 13px;
-  border-radius: 12px;
-}
-/* ===== Make select look same as input ===== */
+    .sheet{
+      width: min(980px, 100vw);
+      max-height: 86vh;
+      background: rgba(255,255,255,.98);
+      border: 1px solid var(--border);
+      border-radius: 22px 22px 0 0;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .sheetHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(96,165,250,.12), rgba(255,255,255,.0));
+    }
+    .sheetGrid{
+      display:grid; gap:12px;
+      padding: 12px 14px 14px;
+      grid-template-columns: 1fr;
+    }
+    @media(min-width:820px){
+      .sheetGrid{ grid-template-columns: .9fr 1.1fr; }
+    }
+    .dayList{
+      max-height: 56vh;
+      overflow:auto;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(2,6,23,.03);
+      padding: 8px;
+    }
+    .dayBtn{
+      width:100%;
+      text-align:left;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: transparent;
+      font-weight: 900;
+      color: var(--ink);
+      cursor:pointer;
+    }
+    .dayBtn:hover{ background: rgba(96,165,250,.14); border-color: rgba(96,165,250,.22); }
+    .dayBtn.active{ background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.22); }
 
-select{
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+    .dayView{
+      max-height: 56vh;
+      overflow:auto;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(2,6,23,.03);
+      padding: 10px;
+    }
 
-  height: 48px;
-  padding: 12px 40px 12px 12px;
+    /* onboarding */
+    .onboard{
+      width: min(720px, calc(100vw - 24px));
+      background: rgba(255,255,255,.98);
+      border: 1px solid rgba(15,23,42,.16);
+      border-radius: 22px;
+      box-shadow: 0 18px 44px rgba(2,6,23,.22);
+      padding: 14px;
+      margin: 0 0 16px;
+    }
+    .onTop{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .onTitle{ margin:0; font-size: 16px; font-weight: 950; }
+    .onSub{ margin:6px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .onSteps{ margin: 10px 0 0; padding-left: 16px; color: var(--ink); font-size: 13px; line-height: 1.55; }
+    .onSteps li{ margin: 6px 0; }
+    .onBtns{ display:flex; justify-content:flex-end; gap:10px; margin-top: 12px; }
+    .onBtns button{ padding: 10px 12px; font-size: 13px; border-radius: 14px; }
 
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background-color: white;
-  font-size: 14px;
+    /* report buttons */
+    #reportCard .btns{ display:flex; align-items:center; gap:12px; }
+    #submitReportBtn{ flex:1; padding: 12px 16px; font-size: 16px; font-weight: 900; border-radius: 16px; }
+    #discardBtn{ flex:0 0 auto; padding: 10px 14px; font-size: 13px; border-radius: 12px; }
 
-  background-image:
-    linear-gradient(45deg, transparent 50%, #64748b 50%),
-    linear-gradient(135deg, #64748b 50%, transparent 50%);
-  background-position:
-    calc(100% - 18px) 50%,
-    calc(100% - 12px) 50%;
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-}
+    /* Cutting Time module */
+    .cutWrap{
+      margin-top: 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(2,6,23,.02);
+      overflow: hidden;
+    }
+    .cutHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px;
+    }
+    .cutBtn{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
 
+      padding: 12px 14px;
+      border-radius: 16px;
+
+      color: var(--ink);
+      background: rgba(2,6,23,.04);
+      border: 1px solid var(--border);
+      box-shadow:none;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .cutChip{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.85);
+      color: var(--muted);
+      font-weight: 950;
+    }
+    .cutWrap.open{
+      border-color: rgba(96,165,250,.55);
+      box-shadow: 0 0 0 4px rgba(96,165,250,.20);
+      background:
+        radial-gradient(520px 180px at 14% 0%, rgba(96,165,250,.20), transparent 60%),
+        rgba(2,6,23,.02);
+    }
+    .cutWrap.open .cutBtn{
+      background: linear-gradient(180deg, rgba(96,165,250,.16), rgba(34,197,94,.10));
+      border-color: rgba(96,165,250,.35);
+    }
+    .cutWrap.open .cutChip{
+      background: rgba(34,197,94,.14);
+      border-color: rgba(34,197,94,.28);
+      color:#166534;
+    }
+    .cutBody{ padding: 0 12px 12px; }
+    .smallHint{ font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
   </style>
 </head>
 
@@ -450,13 +460,12 @@ select{
   <div class="app" id="appScroll">
     <div class="container">
 
-      <!-- TOPBAR -->
       <div class="topbar">
         <div class="topbarRow">
           <div class="brand">
             <h1>
-              QPS Timer v 0.4
-              <button class="helpBtn" type="button" id="helpTopBtn" data-tip="top">?</button>
+              QPS Timer v0.4.2
+              <button class="helpBtn" type="button" data-tip="top">?</button>
             </h1>
             <div class="sub" id="todayText">Today: ----</div>
           </div>
@@ -478,11 +487,7 @@ select{
       <!-- TIMER -->
       <div class="section" id="sec-timer">
         <div class="sectionHead">
-          <h2>
-            <span class="inlineHelp">Timer
-              <button class="helpBtn" type="button" data-tip="timer">?</button>
-            </span>
-          </h2>
+          <h2>Timer <button class="helpBtn" type="button" data-tip="timer">?</button></h2>
         </div>
 
         <div class="card">
@@ -495,7 +500,7 @@ select{
                 <option value="Physical">Physical</option>
                 <option value="Connection">Connection</option>
               </select>
-              <div class="hint">หมวดเป็นแค่ป้าย (tag) — ไม่เอาไป cap</div>
+              <div class="hint">หมวดเป็นแค่ป้าย (tag)</div>
             </div>
             <div>
               <label for="questName">
@@ -507,26 +512,37 @@ select{
             </div>
           </div>
 
-          <div class="divider"></div>
+          <div class="cutWrap" id="cutWrap">
+            <div class="cutHeader">
+              <button class="cutBtn" type="button" id="cutToggleBtn">
+                ⏳ Set Time (Optional)
+                <span class="cutChip" id="cutChip">OFF</span>
+              </button>
+              <button class="helpBtn" type="button" data-tip="cut">?</button>
+            </div>
+
+            <div class="cutBody" id="cutBody" style="display:none;">
+              <div class="row two">
+                <div>
+                  <label for="cutMinutes">Cutting Time (minutes)</label>
+                  <input id="cutMinutes" type="number" inputmode="numeric" min="1" max="360" step="1"
+                         placeholder="เช่น 60 (ไม่ใส่ = ไม่ตัดเวลา)" />
+                  <div class="smallHint">ครบเวลาแล้วระบบจะ Stop อัตโนมัติ → ไปหน้า Report</div>
+                </div>
+
+                <div>
+                  <label for="cutMode">Mode</label>
+                  <select id="cutMode">
+                    <option value="hard" selected>Hard stop (ถึงปุ๊บหยุดทันที)</option>
+                    <option value="soft">Soft stop (เตือนก่อน 10 วิ แล้วหยุด)</option>
+                  </select>
+                  <div class="smallHint">Soft stop = เตือนก่อน แล้วหยุดอัตโนมัติ</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="divider"></div>
-
-<!-- ✅ NEW: TIME CUT (OPTIONAL) -->
-<div class="row two">
-  <div>
-    <label for="targetMinutes">ตัดเวลา (นาที) — ใส่หรือไม่ใส่ก็ได้</label>
-    <input id="targetMinutes" type="number" min="1" step="1" placeholder="เช่น 60 (ครบแล้วจะ Stop อัตโนมัติ)" />
-    <div class="hint" id="targetHint">ไม่ใส่ = timer วิ่งเรื่อยๆ</div>
-  </div>
-  <div>
-    <label for="targetMode">โหมดตัดเวลา</label>
-    <select id="targetMode">
-      <option value="hard">Hard stop (ถึงปุ๊บหยุดทันที)</option>
-      <option value="soft">Soft stop (เตือน แล้วหยุดใน 10 วิ)</option>
-    </select>
-    <div class="hint">Hard แนะนำสุด (ล็อกเควสจริง)</div>
-  </div>
-</div>
 
           <div class="timer" id="timerText">00:00:00</div>
           <div class="hint" id="timerHint">เลือกเควสแล้วกด Start</div>
@@ -541,7 +557,7 @@ select{
 
           <div class="hint" style="margin-top:12px;">
             Base = minutes × 0.4 • Bonus = 0/+2/+4/+6 (เฉพาะเวลา ≥ 30 นาที) •
-            <b>Cap ใหม่:</b> Base cap ต่อ “Quest Name” ต่อวัน = 60 นาที (ชื่อซ้ำไม่ได้)
+            <b>Cap:</b> Base cap ต่อ “Quest Name” ต่อวัน = 60 นาที (ชื่อซ้ำไม่ได้)
           </div>
         </div>
       </div>
@@ -549,18 +565,12 @@ select{
       <!-- TODAY -->
       <div class="section" id="sec-today">
         <div class="sectionHead">
-          <h2>
-            <span class="inlineHelp">Today
-              <button class="helpBtn" type="button" data-tip="today">?</button>
-            </span>
-          </h2>
+          <h2>Today <button class="helpBtn" type="button" data-tip="today">?</button></h2>
         </div>
 
         <div class="card">
           <div class="progressWrap">
-            <div class="badge">
-              Today's Total: <b id="todayTotal">0.0</b> / 100
-            </div>
+            <div class="badge">Today's Total: <b id="todayTotal">0.0</b> / 100</div>
             <div class="miniRight">
               <button id="historyBtn" class="secondary smallBtn" type="button">History</button>
               <button id="undoBtn" class="secondary smallBtn" type="button" disabled>Undo</button>
@@ -575,10 +585,12 @@ select{
 
           <div class="row two">
             <div>
-              <button id="exportBtn" class="secondary" type="button" style="width:100%;padding:10px 12px;font-size:13px;">Export</button>
+              <button id="exportBtn" class="secondary" type="button"
+                style="width:100%;padding:10px 12px;font-size:13px;">Export</button>
             </div>
             <div>
-              <button id="importBtn" class="secondary" type="button" style="width:100%;padding:10px 12px;font-size:13px;">Import</button>
+              <button id="importBtn" class="secondary" type="button"
+                style="width:100%;padding:10px 12px;font-size:13px;">Import</button>
               <input id="importFile" type="file" accept="application/json" style="display:none;">
             </div>
           </div>
@@ -590,11 +602,7 @@ select{
       <!-- REPORT -->
       <div class="section" id="sec-report">
         <div class="sectionHead">
-          <h2>
-            <span class="inlineHelp">Report
-              <button class="helpBtn" type="button" data-tip="report">?</button>
-            </span>
-          </h2>
+          <h2>Report <button class="helpBtn" type="button" data-tip="report">?</button></h2>
         </div>
 
         <div class="card" id="reportCard" style="display:none;">
@@ -634,9 +642,7 @@ select{
           <div class="warnText" id="submitWarn" style="display:none;"></div>
         </div>
 
-        <div class="hint" id="reportHiddenHint">
-          * Report จะโผล่เมื่อกด Stop เท่านั้น
-        </div>
+        <div class="hint" id="reportHiddenHint">* Report จะโผล่เมื่อกด Stop เท่านั้น</div>
       </div>
 
     </div>
@@ -657,7 +663,8 @@ select{
     <div class="sheet">
       <div class="sheetHead">
         <div class="badge">History • <b id="histTitle">----</b></div>
-        <button id="closeOverlayBtn" class="secondary" type="button" style="padding:10px 12px;font-size:13px;">Close</button>
+        <button id="closeOverlayBtn" class="secondary" type="button"
+          style="padding:10px 12px;font-size:13px;">Close</button>
       </div>
 
       <div class="sheetGrid">
@@ -673,7 +680,7 @@ select{
     </div>
   </div>
 
-  <!-- ONBOARDING OVERLAY (ONLY GREEN BUTTON) -->
+  <!-- ONBOARDING -->
   <div class="overlay" id="onOverlay">
     <div class="onboard">
       <div class="onTop">
@@ -700,29 +707,38 @@ select{
   </div>
 
 <script>
-/* =========================================================
-  CONFIG / STORAGE KEYS
-========================================================= */
-const KEY_STATE   = "qps_timer_state_v3";
-const KEY_DATA    = "qpsData_v3";
-const KEY_STREAK  = "qps_streak_v1";
-const KEY_UNDO    = "qps_undo_v1";
-const KEY_ONBOARD = "qps_onboard_seen_v1";
+/* =========================
+  STORAGE KEYS (v4 NEW)
+========================= */
+const KEY_STATE   = "qps_timer_state_v4";
+const KEY_DATA    = "qpsData_v4";
+const KEY_STREAK  = "qps_streak_v2";
+const KEY_UNDO    = "qps_undo_v2";
+const KEY_ONBOARD = "qps_onboard_seen_v2";
 
+/* =========================
+  RULES
+========================= */
 const RULES = {
   basePerMinute: 0.4,
   bonusMinMinutes: 30,
   baseCapPerQuestNamePerDay: 60,
 };
 
-/* =========================================================
+/* =========================
   UTIL
-========================================================= */
+========================= */
 function localDateKey(d = new Date()){
   const y=d.getFullYear();
   const m=String(d.getMonth()+1).padStart(2,"0");
   const day=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${day}`;
+}
+function addDays(dateKey, delta){
+  const [y,m,d] = dateKey.split("-").map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate() + delta);
+  return localDateKey(dt);
 }
 function formatHMS(ms){
   const s=Math.max(0,Math.floor(ms/1000));
@@ -732,6 +748,7 @@ function formatHMS(ms){
   return `${hh}:${mm}:${ss}`;
 }
 function round1(n){ return Math.round(n*10)/10; }
+function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 function escapeHtml(str){
   return String(str ?? "")
     .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -745,10 +762,11 @@ function scrollToId(id){
 function normQuestName(name){
   return (name || "").trim().replace(/\s+/g," ");
 }
+function sanitizeDigitsOnly(v){ return String(v ?? "").replace(/[^\d]/g,""); }
 
-/* =========================================================
+/* =========================
   DATA LAYER
-========================================================= */
+========================= */
 function loadAll(){
   try { return JSON.parse(localStorage.getItem(KEY_DATA)) || {}; }
   catch { return {}; }
@@ -766,6 +784,10 @@ function recalcDayTotal(dayObj){
   const total = (dayObj.quests||[]).reduce((s,q)=> s + (Number(q.questScore)||0), 0);
   dayObj.totalQps = round1(total);
 }
+function listDays(){
+  const data = loadAll();
+  return Object.keys(data).sort().reverse();
+}
 function calcDayTotal(dateKey){
   const data = loadAll();
   const day = data[dateKey];
@@ -774,10 +796,6 @@ function calcDayTotal(dateKey){
     ? day.totalQps
     : (day.quests||[]).reduce((s,q)=> s + (Number(q.questScore)||0), 0)
   );
-}
-function listDays(){
-  const data = loadAll();
-  return Object.keys(data).sort().reverse();
 }
 function calcQuestBaseMinutesUsed(dateKey, questName){
   const data = loadAll();
@@ -795,29 +813,21 @@ function isQuestNameDuplicateToday(dateKey, questName){
   const qn = normQuestName(questName).toLowerCase();
   return day.quests.some(x => normQuestName(x.questName).toLowerCase() === qn);
 }
-
-/* =========================================================
-  STREAK
-========================================================= */
-function loadStreak(){
-  const raw = localStorage.getItem(KEY_STREAK);
-  try { return raw ? JSON.parse(raw) : { current:0, best:0, lastDone:null }; }
-  catch { return { current:0, best:0, lastDone:null }; }
-}
-function saveStreak(s){
-  localStorage.setItem(KEY_STREAK, JSON.stringify(s));
-}
-function addDays(dateKey, delta){
-  const [y,m,d] = dateKey.split("-").map(Number);
-  const dt = new Date(y, m-1, d);
-  dt.setDate(dt.getDate() + delta);
-  return localDateKey(dt);
-}
 function isDayDone(dateKey){
   const data = loadAll();
   const day = data[dateKey];
   return !!(day && Array.isArray(day.quests) && day.quests.length > 0);
 }
+
+/* =========================
+  STREAK
+========================= */
+function loadStreak(){
+  const raw = localStorage.getItem(KEY_STREAK);
+  try { return raw ? JSON.parse(raw) : { current:0, best:0, lastDone:null }; }
+  catch { return { current:0, best:0, lastDone:null }; }
+}
+function saveStreak(s){ localStorage.setItem(KEY_STREAK, JSON.stringify(s)); }
 function computeStreakFromLogs(){
   const today = localDateKey();
   if(!isDayDone(today)) return { current:0 };
@@ -830,10 +840,6 @@ function computeStreakFromLogs(){
   }
   return { current };
 }
-function renderStreak(){
-  const s = loadStreak();
-  el.streakPill.innerHTML = `🔥 Streak: <b>${s.current}</b> • Best: <b>${s.best}</b>`;
-}
 function updateStreakAfterChange(){
   const s = loadStreak();
   const computed = computeStreakFromLogs();
@@ -843,16 +849,19 @@ function updateStreakAfterChange(){
   saveStreak(s);
   renderStreak();
 }
+function renderStreak(){
+  const s = loadStreak();
+  el.streakPill.innerHTML = `🔥 Streak: <b>${s.current}</b> • Best: <b>${s.best}</b>`;
+}
 
-/* =========================================================
+/* =========================
   UNDO/REDO
-========================================================= */
+========================= */
 function loadUndo(){
   try { return JSON.parse(localStorage.getItem(KEY_UNDO)) || { undo: null, redo: null }; }
   catch { return { undo:null, redo:null }; }
 }
 function saveUndo(u){ localStorage.setItem(KEY_UNDO, JSON.stringify(u)); }
-
 function snapshotData(){ return loadAll(); }
 function applySnapshot(snap){
   if(!snap || typeof snap !== "object") return;
@@ -897,10 +906,12 @@ function doRedo(){
   renderUndoRedo();
 }
 
-/* =========================================================
+/* =========================
   ELEMENTS
-========================================================= */
+========================= */
 const el = {
+  appScroll: document.getElementById("appScroll"),
+
   todayText: document.getElementById("todayText"),
   statusPill: document.getElementById("statusPill"),
   streakPill: document.getElementById("streakPill"),
@@ -958,28 +969,35 @@ const el = {
   openOnboardBtn: document.getElementById("openOnboardBtn"),
   okOnBtn: document.getElementById("okOnBtn"),
 
-    targetMinutes: document.getElementById("targetMinutes"),
-  targetHint: document.getElementById("targetHint"),
-  targetMode: document.getElementById("targetMode"),
+  cutWrap: document.getElementById("cutWrap"),
+  cutToggleBtn: document.getElementById("cutToggleBtn"),
+  cutBody: document.getElementById("cutBody"),
+  cutChip: document.getElementById("cutChip"),
+  cutMinutes: document.getElementById("cutMinutes"),
+  cutMode: document.getElementById("cutMode"),
 };
 
-/* =========================================================
-  TIMER STATE
-========================================================= */
+/* =========================
+  STATE
+========================= */
 let state = {
-  status: "idle",
+  status: "idle", // idle|running|paused|stopped
   startTs: null,
   elapsedBefore: 0,
+  lastElapsedMs: 0,
   startDateKey: null,
 
   selectedCategory: "Learning",
   questName: "",
 
-    targetMinutes: null,    // number | null
-  targetMode: "hard",     // "hard" | "soft"
+  cutEnabled: false,
+  cutMinutes: null,
+  cutMode: "hard", // hard|soft
 
-  lastElapsedMs: 0,
+  softWarned: false,
+  softDeadlineTs: 0,
 };
+
 let tickHandle = null;
 
 function saveState(){ localStorage.setItem(KEY_STATE, JSON.stringify(state)); }
@@ -992,9 +1010,9 @@ function loadState(){
   }catch{}
 }
 
-/* =========================================================
-  UI
-========================================================= */
+/* =========================
+  UI HELPERS
+========================= */
 function setReportVisible(v){
   el.reportCard.style.display = v ? "block" : "none";
   document.getElementById("reportHiddenHint").style.display = v ? "none" : "block";
@@ -1021,29 +1039,6 @@ function renderTimer(){
   else if(state.status==="paused") el.timerHint.textContent = "Paused • Resume หรือ Stop";
   else el.timerHint.textContent = "Stopped • ส่ง Report เพื่อบันทึกคะแนน";
 }
-function renderControls(){
-  el.startBtn.disabled  = state.status !== "idle";
-  el.stopBtn.disabled   = !(state.status==="running" || state.status==="paused");
-  el.pauseBtn.disabled  = state.status !== "running";
-  el.resumeBtn.disabled = state.status !== "paused";
-
-  const lock = state.status !== "idle";
-  el.category.disabled = lock;
-  el.questName.disabled = lock;
-
-    if(el.targetMinutes) el.targetMinutes.disabled = lock;
-  if(el.targetMode) el.targetMode.disabled = lock;
-
-  if(state.status==="idle"){
-    if(el.targetMinutes) el.targetMinutes.value = state.targetMinutes ? String(state.targetMinutes) : "";
-    if(el.targetMode) el.targetMode.value = state.targetMode || "hard";
-  }
-
-  if(state.status==="idle"){
-    el.category.value = state.selectedCategory || "Learning";
-    el.questName.value = state.questName || "";
-  }
-}
 function showTimerWarn(msg){
   el.timerWarn.style.display="block";
   el.timerWarn.textContent=msg;
@@ -1060,6 +1055,59 @@ function clearNameWarn(){
 function clearSubmitMessages(){
   el.submitOk.style.display="none"; el.submitWarn.style.display="none";
   el.submitOk.textContent=""; el.submitWarn.textContent="";
+}
+function applyBonusRule(minutes){
+  if(minutes < RULES.bonusMinMinutes){
+    el.qualityBonus.value = "0";
+    el.qualityBonus.disabled = true;
+    el.bonusRuleHint.textContent = `Bonus lock (ต้อง ≥ ${RULES.bonusMinMinutes} นาที)`;
+  }else{
+    el.qualityBonus.disabled = false;
+    el.bonusRuleHint.textContent = `Bonus ใช้ได้ (เวลา ≥ ${RULES.bonusMinMinutes} นาที)`;
+  }
+}
+function updateCapHint(dateKey, questName){
+  const used = calcQuestBaseMinutesUsed(dateKey, questName);
+  const remaining = Math.max(0, RULES.baseCapPerQuestNamePerDay - used);
+  el.capHint.textContent =
+    `Cap ต่อชื่อเควส/วัน = ${RULES.baseCapPerQuestNamePerDay} นาที • วันนี้ "${normQuestName(questName)}" ใช้ base แล้ว ${used} นาที • เหลือ ${remaining} นาที`;
+}
+
+/* Cutting UI */
+function readCutMinutes(){
+  const raw = Number(el.cutMinutes.value);
+  if(!Number.isFinite(raw)) return null;
+  const n = clamp(Math.floor(raw), 1, 360);
+  return n;
+}
+function renderCutUI(){
+  el.cutWrap.classList.toggle("open", !!state.cutEnabled);
+  el.cutBody.style.display = state.cutEnabled ? "block" : "none";
+  if(!state.cutEnabled){
+    el.cutChip.textContent = "OFF";
+  }else{
+    el.cutChip.textContent = state.cutMinutes ? `${state.cutMinutes}m` : "ON";
+  }
+}
+
+function renderControls(){
+  el.startBtn.disabled  = state.status !== "idle";
+  el.stopBtn.disabled   = !(state.status==="running" || state.status==="paused");
+  el.pauseBtn.disabled  = state.status !== "running";
+  el.resumeBtn.disabled = state.status !== "paused";
+
+  const lock = state.status !== "idle";
+  el.category.disabled = lock;
+  el.questName.disabled = lock;
+
+  if(state.status==="idle"){
+    el.category.value = state.selectedCategory || "Learning";
+    el.questName.value = state.questName || "";
+    el.cutMinutes.value = state.cutMinutes ? String(state.cutMinutes) : "";
+    el.cutMode.value = state.cutMode || "hard";
+  }
+
+  renderCutUI();
 }
 
 /* Today render */
@@ -1110,79 +1158,53 @@ function updateUI(){
   renderUndoRedo();
 }
 
-/* tick */
+/* =========================
+  TIMER TICK
+========================= */
 function startTick(){
-  if(tickHandle) return;
+  if(tickHandle) clearInterval(tickHandle);
   tickHandle = setInterval(()=>{
-  renderTimer();
-  autoStopIfReached();
-}, 250);
-}
-let softStopArmed = false;
-let softStopAt = 0;
+    renderTimer();
+    if(state.status === "running" && state.cutEnabled && state.cutMinutes){
+      const ms = computeElapsedMs();
+      const targetMs = state.cutMinutes * 60000;
 
-function autoStopIfReached(){
-  if(state.status !== "running") return;
-  if(!state.targetMinutes) return;
+      if(ms >= targetMs){
+        if(state.cutMode === "soft"){
+          if(!state.softWarned){
+            state.softWarned = true;
+            state.softDeadlineTs = Date.now() + 10000;
+            saveState();
+            showTimerWarn(`ครบ ${state.cutMinutes} นาทีแล้ว — จะหยุดอัตโนมัติใน 10 วิ`);
+            return;
+          }
+          if(Date.now() < state.softDeadlineTs) return;
+        }
 
-  const elapsedMs = computeElapsedMs();
-  const targetMs = state.targetMinutes * 60000;
+        state.softWarned = false;
+        state.softDeadlineTs = 0;
 
-  // ยังไม่ถึง
-  if(elapsedMs < targetMs) return;
+        state.elapsedBefore = targetMs;
+        state.startTs = null;
+        saveState();
 
-  // ถึงแล้ว
-  if(state.targetMode === "soft"){
-    if(!softStopArmed){
-      softStopArmed = true;
-      softStopAt = Date.now() + 10000; // 10 วิ
-      showTimerWarn(`ครบ ${state.targetMinutes} นาทีแล้ว — จะหยุดอัตโนมัติใน 10 วิ`);
-      return;
+        showTimerWarn(`Stop อัตโนมัติ ✅ (${state.cutMinutes} นาที)`);
+        stopQuest();
+      }
     }
-    if(Date.now() < softStopAt) return;
-  }
-
-  // HARD หรือ soft ครบเวลา
-  softStopArmed = false;
-  softStopAt = 0;
-
-  // ปรับ elapsed ให้ “พอดีเป๊ะ” แล้ว stopQuest()
-  state.elapsedBefore = targetMs;
-  state.startTs = null;
-
-  // เรียก stopQuest แบบเดิม
-  stopQuest();
-}
-/* =========================================================
-  RULES (bonus lock + cap hint)
-========================================================= */
-function applyBonusRule(minutes){
-  if(minutes < RULES.bonusMinMinutes){
-    el.qualityBonus.value = "0";
-    el.qualityBonus.disabled = true;
-    el.bonusRuleHint.textContent = `Bonus lock (ต้อง ≥ ${RULES.bonusMinMinutes} นาที)`;
-  }else{
-    el.qualityBonus.disabled = false;
-    el.bonusRuleHint.textContent = `Bonus ใช้ได้ (เวลา ≥ ${RULES.bonusMinMinutes} นาที)`;
-  }
-}
-function updateCapHint(dateKey, questName){
-  const used = calcQuestBaseMinutesUsed(dateKey, questName);
-  const remaining = Math.max(0, RULES.baseCapPerQuestNamePerDay - used);
-  el.capHint.textContent =
-    `Cap ต่อชื่อเควส/วัน = ${RULES.baseCapPerQuestNamePerDay} นาที • วันนี้ "${normQuestName(questName)}" ใช้ base แล้ว ${used} นาที • เหลือ ${remaining} นาที`;
+  }, 250);
 }
 
-/* =========================================================
+/* =========================
   ACTIONS
-========================================================= */
+========================= */
 function validateBeforeStart(){
   clearNameWarn();
   const todayKey = localDateKey();
   const qn = normQuestName(el.questName.value);
 
   if(!qn){
-    showNameWarn("ต้องใส่ Quest Name (ห้ามปล่อยว่าง) เพื่อกันข้อมูลมั่ว");
+    showNameWarn("ต้องใส่ Quest Name (ห้ามปล่อยว่าง)");
     return false;
   }
   if(isQuestNameDuplicateToday(todayKey, qn)){
@@ -1208,15 +1230,16 @@ function startQuest(){
   state.startTs = Date.now();
   state.elapsedBefore = 0;
   state.lastElapsedMs = 0;
-  // ✅ NEW: read target minutes (optional)
-  const tm = el.targetMinutes ? Number(el.targetMinutes.value) : NaN;
-  state.targetMinutes = (Number.isFinite(tm) && tm > 0) ? Math.round(tm) : null;
-  state.targetMode = el.targetMode ? (el.targetMode.value || "hard") : "hard";
+
+  state.cutMinutes = state.cutEnabled ? readCutMinutes() : null;
+  state.cutMode = el.cutMode.value || "hard";
+  state.softWarned = false;
+  state.softDeadlineTs = 0;
+
   saveState();
   clearSubmitMessages();
   setReportVisible(false);
   updateUI();
-  startTick();
 }
 
 function pauseQuest(){
@@ -1225,18 +1248,18 @@ function pauseQuest(){
   state.elapsedBefore = computeElapsedMs(now);
   state.startTs = null;
   state.status = "paused";
-  softStopArmed = false;
-softStopAt = 0;
+  state.softWarned = false;
+  state.softDeadlineTs = 0;
   saveState();
   updateUI();
 }
 
 function resumeQuest(){
-  softStopArmed = false;
-softStopAt = 0;
   if(state.status!=="paused") return;
   state.status="running";
   state.startTs=Date.now();
+  state.softWarned = false;
+  state.softDeadlineTs = 0;
   saveState();
   updateUI();
 }
@@ -1273,11 +1296,12 @@ function discardReport(){
   state.lastElapsedMs=0;
   state.startDateKey=null;
 
+  state.softWarned = false;
+  state.softDeadlineTs = 0;
+
   saveState();
   setReportVisible(false);
   clearSubmitMessages();
-  softStopArmed = false;
-softStopAt = 0;
   updateUI();
 }
 
@@ -1297,18 +1321,18 @@ function submitReport(){
   const dateKey = state.startDateKey || localDateKey();
   const qn = normQuestName(state.questName);
 
+  if(isQuestNameDuplicateToday(dateKey, qn)){
+    el.submitWarn.style.display="block";
+    el.submitWarn.textContent="ชื่อเควสซ้ำในวันนี้แล้ว — เปลี่ยนชื่อ";
+    return;
+  }
+
   const used = calcQuestBaseMinutesUsed(dateKey, qn);
   const remaining = Math.max(0, RULES.baseCapPerQuestNamePerDay - used);
   const baseMinutesUsed = Math.min(minutes, remaining);
 
   const baseScore = baseMinutesUsed * RULES.basePerMinute;
   const questScore = baseScore + bonus;
-
-  if(isQuestNameDuplicateToday(dateKey, qn)){
-    el.submitWarn.style.display="block";
-    el.submitWarn.textContent="ชื่อเควสซ้ำในวันนี้แล้ว — เปลี่ยนชื่อ";
-    return;
-  }
 
   pushUndoSnapshot();
 
@@ -1338,13 +1362,10 @@ function submitReport(){
   el.submitOk.textContent = `Saved! +${round1(questScore).toFixed(1)}${capMsg}`;
 
   el.notes.value = "";
-
   setTimeout(()=>{ discardReport(); }, 320);
 }
 
 function resetToday(){
-  softStopArmed = false;
-softStopAt = 0;
   const todayKey = localDateKey();
   const ok = confirm(`Reset วันนี้ (${todayKey})? รายการวันนี้จะหายหมด`);
   if(!ok) return;
@@ -1359,9 +1380,9 @@ softStopAt = 0;
   showTimerWarn("เคลียร์ข้อมูลวันนี้แล้ว");
 }
 
-/* =========================================================
+/* =========================
   HISTORY
-========================================================= */
+========================= */
 let selectedDay = null;
 
 function openHistory(){
@@ -1428,9 +1449,9 @@ function renderDayView(dayKey){
   `;
 }
 
-/* =========================================================
+/* =========================
   EXPORT/IMPORT
-========================================================= */
+========================= */
 function downloadJson(filename, obj){
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type:"application/json" });
   const url = URL.createObjectURL(blob);
@@ -1457,13 +1478,13 @@ function exportData(){
     exportedAt: new Date().toISOString(),
     data: loadAll()
   };
-  downloadJson(`qpsData_v3_${localDateKey()}.json`, payload);
+  downloadJson(`qpsData_v4_${localDateKey()}.json`, payload);
   showTimerWarn("Exported ✅ (ไฟล์อยู่ Downloads)");
 }
 function importDataObject(imported, mode="merge"){
   const raw = imported?.data ?? imported;
   if(!isValidDataShape(raw)){
-    alert("ไฟล์ไม่ถูกต้อง: โครงสร้างไม่ตรง qpsData_v3");
+    alert("ไฟล์ไม่ถูกต้อง: โครงสร้างไม่ตรง qpsData_v4");
     return;
   }
 
@@ -1506,57 +1527,74 @@ async function importFromFile(file){
   importDataObject(obj, mode);
 }
 
-/* =========================================================
-  TOOLTIP
-========================================================= */
+/* =========================
+  TOOLTIP (FIXED)
+========================= */
 const TIPS = {
-  top:   { title: "ภาพรวม", body: "หลักการ: Start → Stop → Report → ได้คะแนน\nถ้ากดผิดใช้ Undo/Redo ได้ (Today)." },
-  timer: { title: "Timer", body: "เลือกหมวด + ตั้ง Quest Name แล้วกด Start\nPause/Resume ได้\nStop แล้วค่อย Report." },
-  name:  { title: "Quest Name (ห้ามซ้ำ)", body: "ชื่อต้องไม่ซ้ำในวันเดียว\nCap base จะนับตามชื่อเควสนี้ (60 นาที/วัน/ชื่อ)." },
-  today: { title: "Today", body: "ดูคะแนนรวมวันนี้ + รายการเควส\nUndo/Redo แก้การเปลี่ยนล่าสุดได้\nExport/Import ใช้ส่ง/แบ็คอัพ." },
-  report:{ title: "Report", body: "กรอก Minutes + Bonus + Notes แล้ว Submit\nBonus ใช้ได้เมื่อเวลา ≥ 30 นาที\nถ้า base เกิน cap จะนับ base เท่าที่เหลือ." }
+  top:   { title: "ภาพรวม", body: "หลักการ: Start → Stop → Report → ได้คะแนน\nUndo/Redo ใช้แก้ล่าสุดได้ (หน้า Today)" },
+  timer: { title: "Timer", body: "เลือกหมวด + ตั้ง Quest Name แล้วกด Start\nPause/Resume ได้\nStop แล้วค่อย Report" },
+  name:  { title: "Quest Name (ห้ามซ้ำ)", body: "ชื่อต้องไม่ซ้ำในวันเดียว\nCap base จะนับตามชื่อเควสนี้ (60 นาที/วัน/ชื่อ)" },
+  today: { title: "Today", body: "ดูคะแนนรวมวันนี้ + รายการเควส\nExport/Import ใช้สำรองข้อมูล" },
+  report:{ title: "Report", body: "Report จะโผล่เมื่อกด Stop\nMinutes > 0\nBonus ใช้ได้เมื่อเวลา ≥ 30 นาที" },
+  cut:   { title: "Cutting Time", body: "กด Set Time เพื่อเปิด\nใส่นาที 1–360\nHard: ถึงแล้วหยุดทันที\nSoft: เตือนก่อน 10 วิ แล้วหยุด" },
 };
+
+let lastTipBtn = null;
+let lastTipKey = null;
 
 function showTooltip(anchorEl, tipKey){
   const tip = TIPS[tipKey] || { title:"Tip", body:"-" };
   el.tipTitle.textContent = tip.title;
   el.tipBody.textContent = tip.body;
 
-  const rect = anchorEl.getBoundingClientRect();
+  const sc = el.appScroll;
+  const scRect = sc.getBoundingClientRect();
+  const aRect  = anchorEl.getBoundingClientRect();
+
+  const anchorLeft = (aRect.left - scRect.left) + sc.scrollLeft;
+  const anchorTop  = (aRect.top  - scRect.top)  + sc.scrollTop;
+  const anchorBottom = anchorTop + aRect.height;
+
   const pad = 10;
-  const tw = Math.min(340, window.innerWidth - 24);
-  const th = 140;
+  const tw = Math.min(340, sc.clientWidth - 24);
 
-  let left = Math.min(window.innerWidth - tw - 12, Math.max(12, rect.left));
-  let top  = rect.bottom + pad;
+  // ให้ browser คำนวณสูงจริงหลังใส่ text แล้ว
+  el.tooltip.style.left = "12px";
+  el.tooltip.style.top = (sc.scrollTop + 12) + "px";
+  el.tooltip.classList.add("show");
+  el.tipArrow.classList.add("show");
 
-  if(top + th > window.innerHeight - 12){
-    top = rect.top - th - pad;
+  const th = el.tooltip.offsetHeight || 160;
+
+  let left = clamp(anchorLeft, 12, sc.scrollLeft + sc.clientWidth - tw - 12);
+  let top  = anchorBottom + pad;
+
+  const bottomLimit = sc.scrollTop + sc.clientHeight - 12;
+  if(top + th > bottomLimit){
+    top = anchorTop - th - pad;
   }
-  if(top < 12) top = 12;
+  top = Math.max(sc.scrollTop + 12, top);
 
   el.tooltip.style.left = left + "px";
-  el.tooltip.style.top  = top + "px";
-  el.tooltip.classList.add("show");
+  el.tooltip.style.top  = top  + "px";
 
   const arrowSize = 14;
-  let ax = Math.min(window.innerWidth - arrowSize - 12, Math.max(12, rect.left + 8));
-  let ay = (top > rect.top) ? (rect.bottom + 2) : (rect.top - arrowSize - 2);
+  let ax = clamp(anchorLeft + 8, 12, sc.scrollLeft + sc.clientWidth - arrowSize - 12);
+  let ay = (top > anchorTop) ? (anchorBottom + 2) : (anchorTop - arrowSize - 2);
+
   el.tipArrow.style.left = ax + "px";
   el.tipArrow.style.top  = ay + "px";
-  el.tipArrow.classList.add("show");
 }
+
 function hideTooltip(){
   el.tooltip.classList.remove("show");
   el.tipArrow.classList.remove("show");
 }
 
-/* =========================================================
+/* =========================
   ONBOARDING
-========================================================= */
-function openOnboarding(){
-  el.onOverlay.classList.add("show");
-}
+========================= */
+function openOnboarding(){ el.onOverlay.classList.add("show"); }
 function closeOnboarding(markSeen=true){
   el.onOverlay.classList.remove("show");
   if(markSeen) localStorage.setItem(KEY_ONBOARD, "1");
@@ -1566,9 +1604,9 @@ function maybeShowOnboardingFirstTime(){
   if(!seen) openOnboarding();
 }
 
-/* =========================================================
+/* =========================
   EVENTS
-========================================================= */
+========================= */
 el.startBtn.addEventListener("click", startQuest);
 el.pauseBtn.addEventListener("click", pauseQuest);
 el.resumeBtn.addEventListener("click", resumeQuest);
@@ -1616,34 +1654,91 @@ el.importFile.addEventListener("change", async ()=>{
   await importFromFile(file);
 });
 
-/* tooltip events */
+/* Cutting time events */
+el.cutToggleBtn.addEventListener("click", ()=>{
+  if(state.status !== "idle"){
+    showTimerWarn("ตั้งเวลาได้ก่อน Start เท่านั้น");
+    return;
+  }
+  state.cutEnabled = !state.cutEnabled;
+  if(!state.cutEnabled){
+    state.cutMinutes = null;
+    el.cutMinutes.value = "";
+    state.softWarned = false;
+    state.softDeadlineTs = 0;
+  }else{
+    state.cutMinutes = readCutMinutes();
+  }
+  saveState();
+  renderCutUI();
+});
+
+el.cutMinutes.addEventListener("input", ()=>{
+  if(state.status !== "idle") return;
+  el.cutMinutes.value = sanitizeDigitsOnly(el.cutMinutes.value);
+  state.cutMinutes = readCutMinutes();
+  saveState();
+  renderCutUI();
+});
+
+el.cutMode.addEventListener("change", ()=>{
+  if(state.status !== "idle") return;
+  state.cutMode = el.cutMode.value || "hard";
+  saveState();
+});
+
+/* tooltip events (FIXED) */
 document.querySelectorAll(".helpBtn[data-tip]").forEach(btn=>{
   btn.addEventListener("click", (e)=>{
+    e.preventDefault();
     e.stopPropagation();
+
     const key = btn.dataset.tip;
-    if(el.tooltip.classList.contains("show")) hideTooltip();
-    else showTooltip(btn, key);
+
+    if(el.tooltip.classList.contains("show") && lastTipBtn === btn && lastTipKey === key){
+      hideTooltip();
+      lastTipBtn = null;
+      lastTipKey = null;
+      return;
+    }
+
+    lastTipBtn = btn;
+    lastTipKey = key;
+    showTooltip(btn, key);
   });
 });
-el.tipCloseBtn.addEventListener("click", hideTooltip);
-document.addEventListener("click", (e)=>{
-  if(el.tooltip.classList.contains("show")){
-    const t = el.tooltip.contains(e.target);
-    const hb = e.target.classList && e.target.classList.contains("helpBtn");
-    if(!t && !hb) hideTooltip();
-  }
+el.tipCloseBtn.addEventListener("click", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  hideTooltip();
+  lastTipBtn = null;
+  lastTipKey = null;
 });
-window.addEventListener("resize", ()=>{ if(el.tooltip.classList.contains("show")) hideTooltip(); });
-window.addEventListener("scroll", ()=>{ if(el.tooltip.classList.contains("show")) hideTooltip(); }, true);
+document.addEventListener("click", (e)=>{
+  if(!el.tooltip.classList.contains("show")) return;
 
-/* onboarding events (ONLY GOT IT) */
+  const clickedHelp = e.target.closest && e.target.closest(".helpBtn");
+  if(el.tooltip.contains(e.target) || clickedHelp) return;
+
+  hideTooltip();
+  lastTipBtn = null;
+  lastTipKey = null;
+});
+el.appScroll.addEventListener("scroll", ()=>{
+  if(el.tooltip.classList.contains("show")) hideTooltip();
+}, { passive:true });
+window.addEventListener("resize", ()=>{
+  if(el.tooltip.classList.contains("show")) hideTooltip();
+});
+
+/* onboarding */
 el.openOnboardBtn.addEventListener("click", ()=> openOnboarding());
 el.okOnBtn.addEventListener("click", ()=> closeOnboarding(true));
 el.onOverlay.addEventListener("click", (e)=>{ if(e.target===el.onOverlay) closeOnboarding(true); });
 
-/* =========================================================
+/* =========================
   BOOT
-========================================================= */
+========================= */
 function boot(){
   loadState();
 
@@ -1656,12 +1751,15 @@ function boot(){
   if(state.status==="idle"){
     el.category.value = state.selectedCategory || "Learning";
     el.questName.value = state.questName || "";
+    el.cutMinutes.value = state.cutMinutes ? String(state.cutMinutes) : "";
+    el.cutMode.value = state.cutMode || "hard";
   }
 
-  startTick();
+  renderCutUI();
   updateUI();
   updateStreakAfterChange();
   maybeShowOnboardingFirstTime();
+  startTick();
 }
 boot();
 </script>
