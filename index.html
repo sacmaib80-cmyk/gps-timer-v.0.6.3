@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>QPS Timer v0.6.2</title>
+  <title>QPS Timer v0.6.3</title>
 
   <style>
     :root{
@@ -750,6 +750,181 @@
     }
     .rqName{ font-weight: 950; font-size: 16px; }
     .rqMeta{ margin-top:6px; font-size:12px; color:var(--muted); }
+
+    /* =========================
+   DICE UI (Random Quest)
+========================= */
+.diceFab{
+  position: fixed;
+  right: 16px;
+  bottom: 18px;
+  z-index: 10020;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  user-select:none;
+}
+
+.diceBtn{
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  border: 1px solid rgba(15,23,42,.14);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 16px 38px rgba(2,6,23,.16);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 28px;
+  cursor:pointer;
+  touch-action: manipulation;
+  position:relative;
+}
+
+.diceBtn:active{ transform: translateY(1px) scale(.99); }
+
+.dicePulse{
+  animation: dicePulse 2.8s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes dicePulse{
+  0%   { transform: translateY(0) rotate(0deg); }
+  8%   { transform: translateY(-2px) rotate(-2deg); }
+  16%  { transform: translateY(0) rotate(2deg); }
+  24%  { transform: translateY(-1px) rotate(-1deg); }
+  32%  { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* cooldown chip beside dice */
+.diceCd{
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,.14);
+  background: rgba(255,255,255,.88);
+  box-shadow: 0 10px 26px rgba(2,6,23,.12);
+  font-size: 12px;
+  font-weight: 950;
+  color: var(--muted);
+  display:none;
+  white-space:nowrap;
+}
+.diceCd.show{ display:inline-flex; }
+.diceCd b{ color: var(--ink); }
+
+/* modal overlay */
+.rqOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding: 16px;
+  background: rgba(2,6,23,.55);
+  backdrop-filter: blur(8px);
+}
+.rqOverlay.show{ display:flex; }
+
+.rqCard{
+  width: min(720px, calc(100vw - 24px));
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.18);
+  background:
+    radial-gradient(700px 220px at 20% 0%, rgba(96,165,250,.18), transparent 60%),
+    radial-gradient(600px 240px at 85% 20%, rgba(34,197,94,.16), transparent 60%),
+    radial-gradient(600px 260px at 50% 110%, rgba(245,158,11,.14), transparent 60%),
+    rgba(255,255,255,.94);
+  box-shadow: 0 24px 70px rgba(0,0,0,.30);
+  overflow:hidden;
+}
+
+.rqHead2{
+  padding: 14px 14px 10px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom: 1px solid rgba(15,23,42,.10);
+}
+.rqTitle2{
+  margin:0;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing:.2px;
+}
+.rqSub2{
+  margin:6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height:1.5;
+}
+.rqClose{
+  width: 36px; height: 36px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.12);
+  background: rgba(2,6,23,.04);
+  color: var(--ink);
+  font-weight: 950;
+  cursor:pointer;
+  box-shadow:none;
+  padding:0;
+}
+
+.rqBody2{ padding: 12px 14px 14px; }
+
+.rqPickGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:10px;
+}
+.rqPickGrid button{
+  border-radius: 18px;
+  padding: 12px 12px;
+  font-weight: 950;
+}
+.rqPickGrid button.secondary{
+  background: rgba(2,6,23,.05);
+  color: var(--ink);
+}
+
+.rqResult2{
+  margin-top: 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(15,23,42,.12);
+  background: rgba(255,255,255,.88);
+  padding: 12px 12px;
+  display:none;
+}
+.rqResult2.show{ display:block; }
+
+.rqBigName{
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing:.2px;
+}
+.rqMeta2{
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rqActions2{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+.rqActions2 button{ border-radius: 16px; }
+
+.rqSpin{
+  animation: rqSpin .55s ease-in-out;
+}
+@keyframes rqSpin{
+  0% { transform: rotate(0deg) scale(1); }
+  45% { transform: rotate(180deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
+}
   </style>
 </head>
 
@@ -814,7 +989,7 @@
         <div class="topbarRow">
           <div class="brand">
             <h1>
-              QPS Timer v0.6.2
+              QPS Timer v0.6.3
               <button class="helpBtn" type="button" data-tip="top">?</button>
             </h1>
             <div class="sub" id="todayText">Today: ----</div>
@@ -848,32 +1023,47 @@
         <div class="card">
 
           <!-- RANDOM QUEST (stable) -->
-          <div class="rqBox" id="rqWrap" style="display:none;">
-            <div class="rqHead">
-              <div class="rqTitle">🎲 Random Quest <button class="helpBtn" type="button" data-tip="random">?</button></div>
-              <div class="badge" id="rqCdLabel">Ready</div>
-            </div>
-            <div class="rqBody">
-              <div class="rqPickRow">
-                <button id="rqLow" class="secondary" type="button">Random Low</button>
-                <button id="rqMid" class="secondary" type="button">Random Mid</button>
-                <button id="rqHigh" class="secondary" type="button">Random High</button>
-              </div>
+        <!-- DICE FAB (Random Quest) -->
+<div class="diceFab" id="diceFab" style="display:none;">
+  <div class="diceCd" id="diceCd">Cooldown: <b>00:00</b></div>
+  <button class="diceBtn dicePulse" id="diceBtn" type="button" aria-label="Random Quest Dice">🎲</button>
+</div>
 
-              <div class="rqResult" id="rqResult" style="display:none;">
-                <div class="rqName" id="rqName">—</div>
-                <div class="rqMeta" id="rqMeta">—</div>
-                <div class="btns" style="margin-top:12px; grid-template-columns: 1fr 1fr;">
-                  <button id="rqStartNow" type="button">Start Now</button>
-                  <button id="rqClear" class="secondary" type="button">Clear</button>
-                </div>
-                <div class="hint" style="margin-top:10px;">
-                  cooldown 30 นาทีทันทีหลังสุ่ม • กัน reroll spam • กันสุ่มซ้ำในวันเดียว
-                </div>
-              </div>
-            </div>
-          </div>
-                      <div class="divider"></div>
+<!-- Random Quest Modal -->
+<div class="rqOverlay" id="rqOverlay" aria-hidden="true">
+  <div class="rqCard" role="dialog" aria-modal="true">
+    <div class="rqHead2">
+      <div>
+        <p class="rqTitle2">🎲 Random Quest</p>
+        <p class="rqSub2" id="rqModalSub">เลือกพลังงาน แล้วระบบจะสุ่มเควสให้</p>
+      </div>
+      <button class="rqClose" id="rqClose" type="button">✕</button>
+    </div>
+
+    <div class="rqBody2">
+      <div class="rqPickGrid">
+        <button class="secondary" id="rqPickLow" type="button">LOW</button>
+        <button class="secondary" id="rqPickMid" type="button">MID</button>
+        <button class="secondary" id="rqPickHigh" type="button">HIGH</button>
+      </div>
+
+      <div class="rqResult2" id="rqResult2">
+        <div class="rqBigName" id="rqBigName">—</div>
+        <div class="rqMeta2" id="rqMeta2">—</div>
+
+        <div class="rqActions2">
+          <button id="rqStartNow2" type="button">Start Now</button>
+          <button id="rqClear2" class="secondary" type="button">Clear</button>
+        </div>
+
+        <div class="hint" style="margin-top:10px;">
+          cooldown 30 นาทีหลังสุ่ม • กันสุ่มซ้ำในวันเดียว • Start Now = auto-fill + cutting time
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  
+ 
 
                       
 
@@ -1477,17 +1667,24 @@ const el = {
   gateTopTime: document.getElementById("gateTopTime"),
   gateTopOpenBtn: document.getElementById("gateTopOpenBtn"),
 
-  // Random Quest
-  rqWrap: document.getElementById("rqWrap"),
-  rqCdLabel: document.getElementById("rqCdLabel"),
-  rqLow: document.getElementById("rqLow"),
-  rqMid: document.getElementById("rqMid"),
-  rqHigh: document.getElementById("rqHigh"),
-  rqResult: document.getElementById("rqResult"),
-  rqName: document.getElementById("rqName"),
-  rqMeta: document.getElementById("rqMeta"),
-  rqStartNow: document.getElementById("rqStartNow"),
-  rqClear: document.getElementById("rqClear"),
+   // Dice UI
+  diceFab: document.getElementById("diceFab"),
+  diceBtn: document.getElementById("diceBtn"),
+  diceCd: document.getElementById("diceCd"),
+
+  rqOverlay: document.getElementById("rqOverlay"),
+  rqClose: document.getElementById("rqClose"),
+  rqModalSub: document.getElementById("rqModalSub"),
+
+  rqPickLow: document.getElementById("rqPickLow"),
+  rqPickMid: document.getElementById("rqPickMid"),
+  rqPickHigh: document.getElementById("rqPickHigh"),
+
+  rqResult2: document.getElementById("rqResult2"),
+  rqBigName: document.getElementById("rqBigName"),
+  rqMeta2: document.getElementById("rqMeta2"),
+  rqStartNow2: document.getElementById("rqStartNow2"),
+  rqClear2: document.getElementById("rqClear2"),
 };
 
 /* =========================
@@ -1866,10 +2063,11 @@ function gateCheckFirstQuestQualify(){
     saveGate();
     gateGrantBonusIfEligible();
 
-    // ✅ PASS แล้วเปิด Random Quest
+    // ✅ PASS แล้วโชว์ Dice
     rqShowIfEligible();
   }
 }
+
 
 function renderGateCoverDisplay(){
   el.gateTriggerDisplay.textContent = (gateCfg.triggerHHMM ? gateCfg.triggerHHMM : "--.--");
@@ -2444,31 +2642,67 @@ function rqPick(energy){
   return { ok:false, reason:"NO_CANDIDATES" };
 }
 
-/* random UI */
-function rqShowIfEligible(){
-  // โชว์เมื่อ Morning Gate PASS หรือ Gate OFF (ให้ใช้เป็น anti-plan-switching tool)
-  const eligible = gate.passed || isFirstQuestAlreadyDoneToday() || !isGateActiveToday();
-  el.rqWrap.style.display = eligible ? "block" : "none";
-  rqTickUI();
+function rqOpenModal(){
+  if(el.diceFab.style.display === "none") return;
+  el.rqOverlay.classList.add("show");
+  el.rqOverlay.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
 }
-function rqRenderSelected(){
+
+function rqCloseModal(){
+  el.rqOverlay.classList.remove("show");
+  el.rqOverlay.setAttribute("aria-hidden","true");
+  document.body.style.overflow = "";
+}
+
+function rqRenderSelectedToModal(){
   const q = rqGetSelected();
   if(!q){
-    el.rqResult.style.display = "none";
+    el.rqResult2.classList.remove("show");
+    el.rqBigName.textContent = "—";
+    el.rqMeta2.textContent = "—";
     return;
   }
-  el.rqResult.style.display = "block";
-  el.rqName.textContent = q.name;
-  el.rqMeta.textContent = `${q.category} • ${q.duration} min • ${String(q.energy).toUpperCase()}`;
+  el.rqResult2.classList.add("show");
+  el.rqBigName.textContent = q.name;
+  el.rqMeta2.textContent = `${q.category} • ${q.duration} min • ${String(q.energy).toUpperCase()}`;
 }
+
+/* random UI */
+function rqShowIfEligible(){
+  el.diceFab.style.display = "flex";
+
+  const blockedByGate = (isGateActiveToday() && !gate.passed && !isFirstQuestAlreadyDoneToday());
+  el.diceBtn.disabled = blockedByGate || rqIsCooldown();
+  if(blockedByGate){
+    el.diceCd.classList.add("show");
+    el.diceCd.innerHTML = `ผ่าน Gate ก่อนถึงจะสุ่มได้`;
+  }else{
+    rqTickUI();
+  }
+}
+
 function rqTickUI(){
   const locked = rqIsCooldown();
-  el.rqLow.disabled = locked;
-  el.rqMid.disabled = locked;
-  el.rqHigh.disabled = locked;
 
-  el.rqCdLabel.innerHTML = locked ? `Cooldown: <b>${rqCooldownLeft()}</b>` : `Ready`;
-  rqRenderSelected();
+  // cooldown chip
+  if(locked){
+    el.diceCd.classList.add("show");
+    el.diceCd.innerHTML = `Cooldown: <b>${rqCooldownLeft()}</b>`;
+    el.diceBtn.classList.remove("dicePulse");
+    el.diceBtn.disabled = true; // ป้องกันกดตอนคูลดาวน์
+  }else{
+    el.diceCd.classList.remove("show");
+    el.diceBtn.classList.add("dicePulse");
+    el.diceBtn.disabled = false;
+  }
+
+  // modal buttons disable while cooldown
+  el.rqPickLow.disabled  = locked;
+  el.rqPickMid.disabled  = locked;
+  el.rqPickHigh.disabled = locked;
+
+  rqRenderSelectedToModal();
 }
 function rqHandleRandom(energy){
   if(state.status !== "idle"){
@@ -2480,6 +2714,10 @@ function rqHandleRandom(energy){
     showTimerWarn("ติด cooldown");
     return;
   }
+
+  // spin dice (สวยๆ)
+  el.diceBtn.classList.add("rqSpin");
+  setTimeout(()=> el.diceBtn.classList.remove("rqSpin"), 560);
 
   const res = rqPick(energy);
   if(!res.ok){
@@ -3239,12 +3477,31 @@ el.gateTriggerTimeInput.addEventListener("change", ()=>{
   );
 });
 
-// Random events
-el.rqLow.addEventListener("click", ()=> rqHandleRandom("low"));
-el.rqMid.addEventListener("click", ()=> rqHandleRandom("mid"));
-el.rqHigh.addEventListener("click", ()=> rqHandleRandom("high"));
-el.rqStartNow.addEventListener("click", rqStartNow);
-el.rqClear.addEventListener("click", ()=>{
+// Dice open modal
+el.diceBtn.addEventListener("click", ()=>{
+  if(rqIsCooldown()){
+    rqTickUI();
+    showTimerWarn("ติด cooldown");
+    return;
+  }
+  rqOpenModal();
+});
+
+// Close modal
+el.rqClose.addEventListener("click", rqCloseModal);
+el.rqOverlay.addEventListener("click", (e)=>{ if(e.target===el.rqOverlay) rqCloseModal(); });
+
+// Pick energy
+el.rqPickLow.addEventListener("click", ()=> rqHandleRandom("low"));
+el.rqPickMid.addEventListener("click", ()=> rqHandleRandom("mid"));
+el.rqPickHigh.addEventListener("click", ()=> rqHandleRandom("high"));
+
+// Start / Clear inside modal
+el.rqStartNow2.addEventListener("click", ()=>{
+  rqStartNow();
+  if(state.status === "running") rqCloseModal();
+});
+el.rqClear2.addEventListener("click", ()=>{
   rqClearSelected();
   rqTickUI();
 });
@@ -3305,6 +3562,8 @@ function boot(){
 
   rqShowIfEligible();
   rqTickUI();
+  maybeShowOnboardingFirstTime();
+rqShowIfEligible();
 
   startTick();
 }
