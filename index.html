@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>QPS Timer v0.6.6</title>
+    <title>QPS Timer v0.7.0</title>
 
     <style>
       :root{
@@ -60,69 +60,226 @@
         position: relative;
       }
       .container{ max-width: 860px; margin: 0 auto; }
+/* =========================
+   TOPBAR REBUILD v2
+========================= */
 
-      /* topbar */
-      .topbar{
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        margin: 0 auto 12px;
-        padding: 10px 10px 12px;
-        background: linear-gradient(180deg, rgba(246,249,255,.98), rgba(246,249,255,.84), rgba(246,249,255,.00));
-        backdrop-filter: blur(10px);
-      }
-      .topbarRow{
-        display:flex;
-        align-items:flex-start;
-        justify-content:space-between;
-        gap:10px;
-      }
-      .brand h1{ margin:0; font-size: 18px; line-height:1.2; display:flex; align-items:center; gap:10px; }
-      .brand .sub{ margin:6px 0 0; color:var(--muted); font-size:12px; }
+/* =========================
+   TOPBAR CLEAN v3
+========================= */
 
-      .pills{
-        display:flex; gap:8px; align-items:flex-start;
-        flex-wrap:wrap; justify-content:flex-end;
-      }
-      .pill{
-        display:inline-flex; align-items:center; gap:8px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(255,255,255,.92);
-        border: 1px solid var(--border);
-        box-shadow: 0 6px 14px rgba(2,6,23,.06);
-        font-size:12px; color:var(--muted);
-      }
-      .pill b{ color:var(--ink); }
+.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin: 0 auto 12px;
+  padding: 10px 10px 12px;
+  background: transparent;
+}
 
-      .pillBtn{
-        border:0;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-weight: 950;
-        font-size: 12px;
-        cursor:pointer;
-        background: rgba(2,6,23,.06);
-        color: var(--ink);
-        border: 1px solid var(--border);
-        box-shadow:none;
-      }
-      .pillBtn.on{
-        background: rgba(34,197,94,.14);
-        border-color: rgba(34,197,94,.28);
-        color:#166534;
-      }
-      .pillBtn:disabled{ opacity:.45; cursor:not-allowed; }
+.topbar::before{
+  display: none;
+}
 
-      .jump{
-        display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;
-      }
-      .jump button{
-        padding: 9px 12px;
-        border-radius: 999px;
-        font-size: 12px;
-      }
+.topbarShell{
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 14px 14px 12px;
+  border-radius: 26px;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,.90),
+    rgba(255,255,255,.78)
+  );
+  border: 1px solid rgba(255,255,255,.52);
+  box-shadow:
+    0 16px 34px rgba(15,23,42,.08),
+    inset 0 1px 0 rgba(255,255,255,.65);
+}
 
+.topMain.clean{
+  display:block;
+}
+
+.brandBlock{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brandLeft{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brandIcon{
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  display:grid;
+  place-items:center;
+  flex: 0 0 auto;
+  font-size: 16px;
+  font-weight: 950;
+  color: #0f172a;
+  background: linear-gradient(135deg, rgba(96,165,250,.16), rgba(34,197,94,.12));
+  border: 1px solid rgba(255,255,255,.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    0 6px 14px rgba(15,23,42,.05);
+}
+
+.brandMeta{
+  min-width: 0;
+}
+
+.brandTitleRow{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  flex-wrap:wrap;
+}
+
+.brandMeta h1{
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  color: #166534;
+  background: linear-gradient(90deg,#2563eb,#22c55e);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent; 
+}
+
+.versionBadge{
+  display:inline-flex;
+  align-items:center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.05);
+  border: 1px solid rgba(15,23,42,.07);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.brandMeta .sub{
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.topTools{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.miniStreak{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+
+.fire{
+  font-size:18px;
+  line-height:1;
+}
+
+.streakNum{
+  font-size:13px;
+  font-weight:900;
+  color:#0f172a;
+  line-height:1;
+}
+
+.iconGhostBtn{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding: 0;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(255,255,255,.74);
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.topNavWrap{
+  margin-top: 12px;
+  display:flex;
+  justify-content:center;
+}
+
+.topNav{
+  width: min(100%, 420px);
+  display:flex;
+  gap:4px;
+  padding:4px;
+  border-radius:999px;
+  background: rgba(255,255,255,.55);
+  border:1px solid rgba(15,23,42,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+}
+
+.navBtn{
+  flex:1;
+  height:36px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  background:transparent;
+  border:0;
+  color:var(--ink);
+  box-shadow:none;
+}
+
+.navBtn:hover{
+  background: rgba(255,255,255,.62);
+}
+
+.navBtn.active{
+  background:white;
+  box-shadow: 0 6px 14px rgba(0,0,0,.06);
+}
+
+@media(max-width:640px){
+  .brandBlock{
+    align-items:flex-start;
+  }
+
+  .topTools{
+    gap: 6px;
+  }
+
+  .miniStreak{
+    font-size: 10px;
+    padding: 0 8px;
+  }
+
+  .topNav{
+    width: 100%;
+  }
+}
       .section{ margin-top: 12px; scroll-margin-top: 110px; }
       .sectionHead{
         display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -1258,7 +1415,28 @@
   to{opacity:1; transform:translateY(0);}
 }
 
+.miniGateBtn{
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(255,255,255,.78);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: none;
+  cursor: pointer;
+}
 
+.miniGateBtn:hover{
+  background: rgba(255,255,255,.92);
+}
+
+.miniGateBtn.on{
+  background: rgba(34,197,94,.14);
+  border-color: rgba(34,197,94,.28);
+  color:#166534;
+}
     </style>
   </head>
 
@@ -1319,35 +1497,44 @@
     <div class="app" id="appScroll">
       <div class="container">
 
-        <div class="topbar">
-          <div class="topbarRow">
-            <div class="brand">
-              <h1>
-                QPS Timer v0.6.6
-                <button class="helpBtn" type="button" data-tip="top">?</button>
-              </h1>
-              <div class="sub" id="todayText">Today: ----</div>
+       <div class="topbar">
+  <div class="topbarShell">
+    <div class="topMain clean">
+      <div class="brandBlock">
+        <div class="brandLeft">
+          <div class="brandIcon">Q</div>
+
+          <div class="brandMeta">
+            <div class="brandTitleRow">
+              <h1>QPS Timer</h1>
+              <span class="versionBadge">v0.7.0</span>
             </div>
-
-            <div class="pills">
-              <div class="pill" id="statusPill">Status: <b>Idle</b></div>
-              <div class="pill" id="streakPill">🔥 Streak: <b>0</b> • Best: <b>0</b></div>
-
-              <div class="pill" style="gap:10px;">
-                🟥 Morning Gate
-                <button class="pillBtn" id="gateToggleBtn" type="button">OFF</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="jump">
-            <button class="secondary" type="button" onclick="scrollToId('sec-timer')">⏱ Timer</button>
-            <button class="secondary" type="button" onclick="scrollToId('sec-today')">📋 Today</button>
-            <button class="secondary" type="button" onclick="scrollToId('sec-report')">📝 Report</button>
-            <button class="secondary" type="button" id="openOnboardBtn">✨ How to use</button>
+            <div class="sub" id="todayText">Today: ----</div>
           </div>
         </div>
 
+        <div class="topTools">
+          <button class="miniGateBtn" id="gateToggleBtn" type="button">Gate</button>
+
+  <div class="miniStreak" id="streakPill">
+  <span class="fire">🔥</span>
+  <span class="streakNum">0</span>
+</div>
+  <button class="iconGhostBtn" type="button" id="topMenuBtn">⋯</button>
+</div>
+      </div>
+    </div>
+
+    <div class="topNavWrap">
+      <div class="topNav">
+        <button class="navBtn active" type="button" onclick="scrollToId('sec-timer')">Timer</button>
+        <button class="navBtn" type="button" onclick="scrollToId('sec-today')">Today</button>
+        <button class="navBtn" type="button" onclick="scrollToId('sec-report')">Report</button>
+        <button class="navBtn" type="button" id="openOnboardBtn">Guide</button>
+      </div>
+    </div>
+  </div>
+</div>
         <!-- TIMER -->
         <div class="section" id="sec-timer">
           <div class="sectionHead">
@@ -1929,12 +2116,16 @@
     saveStreak(s);
     renderStreak();
   }
-  function renderStreak(){
-    const s = loadStreak();
-    if(!el.streakPill) return;
-    el.streakPill.innerHTML = `🔥 Streak: <b>${s.current}</b> • Best: <b>${s.best}</b>`;
-  }
+function renderStreak(){
+  const s = loadStreak();
+  if(!el.streakPill) return;
 
+  el.streakPill.innerHTML = `
+    <span class="fire">🔥</span>
+    <span class="streakNum">${s.current}</span>
+  `;
+  el.streakPill.title = `Best: ${s.best}`;
+}
   /* =========================
     UNDO/REDO
   ========================= */
@@ -2665,16 +2856,20 @@
     if(el.reportCard) el.reportCard.style.display = v ? "block" : "none";
     if(el.reportHiddenHint) el.reportHiddenHint.style.display = v ? "none" : "block";
   }
-  function updateStatusPill(){
-    const map = {
-      idle: "Idle",
-      running: "Running",
-      paused: "Paused",
-      stopped: "Stopped (report pending)",
-    };
-    if(!el.statusPill) return;
-    el.statusPill.innerHTML = `Status: <b>${map[state.status] || "Idle"}</b>`;
-  }
+ function updateStatusPill(){
+  const map = {
+    idle: "Idle",
+    running: "Running",
+    paused: "Paused",
+    stopped: "Stopped (report pending)",
+  };
+  if(!el.statusPill) return;
+
+  el.statusPill.innerHTML = `
+    <div class="topCardLabel">Status</div>
+    <div class="topCardValue">${map[state.status] || "Idle"}</div>
+  `;
+}
   function computeElapsedMs(now=Date.now()){
     if(state.status==="running" && state.startTs) return state.elapsedBefore + (now - state.startTs);
     return state.elapsedBefore;
@@ -3641,7 +3836,7 @@ clearReportDraft();
     top:   { title: "ภาพรวม", body: "หลักการ: Start → Stop → Report → ได้คะแนน\nUndo/Redo ใช้แก้ล่าสุดได้ (หน้า Today)\nMorning Gate: ตั้งในหน้า Gate (กดปุ่ม Morning Gate ขวาบน)\nRandom Quest ใช้กัน plan switching (มี cooldown)" },
     timer: { title: "Timer", body: "เลือกหมวด + ตั้ง Quest Name แล้วกด Start\nPause/Resume ได้\nStop แล้วค่อย Report" },
     name:  { title: "Quest Name (ห้ามซ้ำ)", body: "ชื่อต้องไม่ซ้ำในวันเดียว\nCap base จะนับตามชื่อเควสนี้ (60 นาที/วัน/ชื่อ)" },
-    today: { title: "Today", body: "ดูคะแนนรวมวันนี้ + รายการเควส\nExport/Import ใช้สำรองข้อมูล" },
+    today: { title: "Today", body: "ดูคะแนนรวมวันนี้ + รายการเควส\nExport/Import ใช้สำรองข้อมูล \nUndo/Redo ใช้แก้ล่าสุดได้ "},
     report:{ title: "Report", body: "Report จะโผล่เมื่อกด Stop\nMinutes > 0\nBonus ใช้ได้เมื่อเวลา ≥ 30 นาที" },
     cut:   { title: "Cutting Time", body: "กด Set Time เพื่อเปิด\nใส่นาที 1–360\nHard: ถึงแล้วหยุดทันที\nSoft: เตือนก่อน 10 วิ แล้วหยุด" },
     gate:  { title: "Morning Gate", body:
