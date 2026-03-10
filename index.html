@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>SakuraQ v0.7.3</title>
+    <title>SakuraQ v0.7.4</title>
 
     <style>
       :root{
@@ -2396,7 +2396,7 @@ linear-gradient(
           <div class="brandMeta">
             <div class="brandTitleRow">
               <h1>SakuraQ</h1>
-              <span class="versionBadge">v0.7.3</span>
+              <span class="versionBadge">v0.7.4</span>
             </div>
             <div class="sub" id="todayText">Today: ----</div>
           </div>
@@ -4002,395 +4002,655 @@ function renderTopMenuUI(){
   }
 
   /* =========================
-    RANDOM QUEST (stable implementation)
-  ========================= */
-  const RQ_GEN = {
-    durations: {
-      low:  { min:10, max:20 },
-      mid:  { min:25, max:40 },
-      high: { min:45, max:70 },
-    },
-    physical: {
-      low:  ["เดิน", "ยืดเหยียด", "mobility", "วิ่งเบา", "คาร์ดิโอเบา"],
-      mid:  ["อก", "หลัง", "ไหล่", "แขน", "ขา", "ท้อง", "คาร์ดิโอ"],
-      high: ["Upper (อก+ไหล่)", "Pull (หลัง+แขน)", "Legs (ขา)", "Full body", "คาร์ดิโอหนัก + ท้อง"]
-    },
-    workActions: [
-      "ลงมือทำ Focus",
-      "แก้/ปรับ Focus",
-      "วางแผน Focus",
-      "ส่งงาน/โพสต์ Focus",
-      "หาลูกค้า/ติดต่อ Focus",
-      "สรุปบทเรียน Focus"
+   RANDOM QUEST / DICE ENGINE PATCH v1.5
+   history-first + real-time aware
+========================= */
+
+const SQ_DICE_RULES = {
+  cooldownMin: 15,
+  lookbackDays: 7,
+  physicalCooldownDays: 3
+};
+
+const SQ_DICE_GEN = {
+  durations: {
+    low:  [10, 15, 20],
+    mid:  [30, 35],
+    high: [45, 50, 55, 60],
+  },
+
+  physical: {
+    cardio: ["เดิน", "วิ่งเบา", "mobility", "ยืดเหยียด", "คาร์ดิโอเบา"],
+    bodypart: ["อก", "หลัง", "ไหล่", "แขน", "ขา", "ท้อง"]
+  },
+
+  connection: {
+    low: [
+      "ทักคนใหม่ 1 คน",
+      "เริ่มบทสนทนากับคนที่ไม่ค่อยได้คุย 1 ครั้ง",
+      "ถามคำถามเพื่อเปิดบทสนทนาใหม่ 1 ครั้ง",
+      "ทำความรู้จักคนใหม่ 1 คน"
+    ]
+  },
+
+  workActions: [
+    "ลงมือทำ Focus",
+    "แก้/ปรับ Focus",
+    "วางแผน Focus",
+    "ship Focus 1 อย่าง",
+    "สรุปบทเรียน Focus"
+  ],
+
+  learningActivities: {
+    language: [
+      { act:"ท่องศัพท์", tail:"แต่ง 5 ประโยค" },
+      { act:"อ่านเนื้อหา", tail:"เขียนใจความ 5 bullet" },
+      { act:"ฟัง/ดูคลิป", tail:"สรุป 5 bullet" },
+      { act:"ฝึกใช้จริง", tail:"แต่ง 8 ประโยค" },
+      { act:"ทบทวน", tail:"สรุปสิ่งที่พลาด 3 ข้อ" },
     ],
-    learningActivities: {
-      language: [
-        { act:"ท่องศัพท์", tail:"แต่ง 5 ประโยค" },
-        { act:"อ่านเนื้อหา", tail:"เขียนใจความ 5 bullet" },
-        { act:"ฟัง/ดูคลิป", tail:"สรุป 5 bullet" },
-        { act:"ฝึกใช้จริง", tail:"แต่ง 8 ประโยค" },
-        { act:"ทบทวน", tail:"สรุปสิ่งที่พลาด 3 ข้อ" },
-      ],
-      math: [
-        { act:"ทำโจทย์", tail:"Error log 3 ข้อ" },
-        { act:"ทบทวนสูตร", tail:"สรุปสูตร + ตัวอย่าง 2 ข้อ" },
-        { act:"แก้โจทย์ชุด", tail:"ตรวจคำตอบ + สรุปจุดพลาด" },
-      ],
-      generic: [
-        { act:"อ่านเนื้อหา", tail:"เขียนใจความ 5 bullet" },
-        { act:"ดูคลิป", tail:"สรุป 5 bullet" },
-        { act:"ทบทวน", tail:"สรุป 5 bullet" },
-        { act:"จดสรุป", tail:"ย่อ 5 บรรทัด" },
-      ],
-    },
-    kw: {
-      language: ["eng","english","chinese","japan","korea","vocab","sentence","reading","listening","speaking","grammar","汉语","中文","ภาษาอังกฤษ","ภาษาจีน","ศัพท์","ประโยค","อ่าน","ฟัง","พูด","แกรมม่า"],
-      math: ["math","algebra","equation","calculus","stats","logic","dp","สมการ","สถิติ","ฟังก์ชัน","ตรรกะ","โจทย์","พิสูจน์"],
-    },
-    fallbackPool: {
-      low: [
-        { category:"Learning", name:"Learning • อ่าน/สรุป", tail:"สรุป 5 bullet" },
-        { category:"Physical", name:"Physical • เดิน", tail:"" },
-        { category:"Work/Project", name:"Work • จัดระบบ", tail:"Focus" },
-      ],
-      mid: [
-        { category:"Learning", name:"Learning • ทบทวน", tail:"เขียนใจความ 5 bullet" },
-        { category:"Physical", name:"Physical • ท้อง", tail:"" },
-        { category:"Work/Project", name:"Work • ลงมือทำ", tail:"Focus" },
-      ],
-      high: [
-        { category:"Work/Project", name:"Work • Ship 1 อย่าง", tail:"Focus" },
-        { category:"Physical", name:"Physical • Full body", tail:"" },
-        { category:"Learning", name:"Learning • ทำชุด", tail:"สรุปจุดพลาด 3 ข้อ" },
-      ]
-    }
-  };
+    math: [
+      { act:"ทำโจทย์", tail:"Error log 3 ข้อ" },
+      { act:"ทบทวนสูตร", tail:"สรุปสูตร + ตัวอย่าง 2 ข้อ" },
+      { act:"แก้โจทย์ชุด", tail:"ตรวจคำตอบ + สรุปจุดพลาด" },
+    ],
+    generic: [
+      { act:"อ่านเนื้อหา", tail:"เขียนใจความ 5 bullet" },
+      { act:"ดูคลิป", tail:"สรุป 5 bullet" },
+      { act:"ทบทวน", tail:"สรุป 5 bullet" },
+      { act:"จดสรุป", tail:"ย่อ 5 บรรทัด" },
+    ],
+  },
 
-  function rqRandInt(min, max){
-    min = Math.ceil(min); max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-  function rqPickOne(arr){
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-  function rqHash(str){
-    let h = 2166136261;
-    for(let i=0;i<str.length;i++){
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 16777619);
-    }
-    return "H" + (h >>> 0).toString(36);
-  }
-  function rqExtractDomainFromQuestName(name){
-    const n = normQuestName(name);
-    if(!n) return "";
-    const cut = n.split("•")[0].split("-")[0].split("|")[0].trim();
-    return cut.replace(/\b(\d+)\s*(min|m)\b/ig,"").trim();
-  }
-  function rqClassifyLearningType(domain){
-    const d = (domain||"").toLowerCase();
-    const has = (list)=> list.some(k => d.includes(k.toLowerCase()));
-    if(has(RQ_GEN.kw.language)) return "language";
-    if(has(RQ_GEN.kw.math)) return "math";
-    return "generic";
-  }
-  function rqGetDomainsFromHistory(category, lookbackDays = RQ_RULES.lookbackDays){
-    const data = loadAll();
-    const today = localDateKey();
-    const freq = new Map();
+  kw: {
+    language: ["eng","english","chinese","japan","japanese","korea","korean","vocab","sentence","reading","listening","speaking","grammar","汉语","中文","ภาษาอังกฤษ","ภาษาจีน","ศัพท์","ประโยค","อ่าน","ฟัง","พูด","แกรมม่า"],
+    math: ["math","algebra","equation","calculus","stats","logic","dp","สมการ","สถิติ","ฟังก์ชัน","ตรรกะ","โจทย์","พิสูจน์","คณิต"],
+  },
 
-    for(let i=0;i<lookbackDays;i++){
-      const dk = addDays(today, -i);
-      const day = data[dk];
-      if(!day?.quests) continue;
-      for(const q of day.quests){
-        if(q.category !== category) continue;
-        const dom = rqExtractDomainFromQuestName(q.questName);
-        if(!dom) continue;
-        const key = dom.toLowerCase();
-        freq.set(key, { dom, n: (freq.get(key)?.n || 0) + 1 });
-      }
-    }
-    const sorted = [...freq.values()].sort((a,b)=> b.n - a.n);
-    return sorted.map(x => x.dom);
+  fallbackPool: {
+    low: [
+      { category:"Learning", name:"Learning • อ่าน/สรุป", tail:"สรุป 5 bullet" },
+      { category:"Physical", name:"Physical • เดิน", tail:"" },
+      { category:"Work/Project", name:"Work • จัดระบบ", tail:"Focus" },
+    ],
+    mid: [
+      { category:"Learning", name:"Learning • ทบทวน", tail:"เขียนใจความ 5 bullet" },
+      { category:"Physical", name:"Physical • อก", tail:"" },
+      { category:"Work/Project", name:"Work • ลงมือทำ", tail:"Focus" },
+    ],
+    high: [
+      { category:"Work/Project", name:"Work • Ship 1 อย่าง", tail:"Focus" },
+      { category:"Physical", name:"Physical • หลัง", tail:"" },
+      { category:"Learning", name:"Learning • ทำชุด", tail:"สรุปจุดพลาด 3 ข้อ" },
+    ]
   }
+};
 
-  /* 7d stats for balancing */
-  function rqBuild7dStats(){
-    const data = loadAll();
-    const today = localDateKey();
-    const cats = ["Learning","Work/Project","Physical"];
-    const stat = {};
-    cats.forEach(c=> stat[c]={ minutes:0, count:0 });
-
-    for(let i=0;i<7;i++){
-      const dk = addDays(today, -i);
-      const day = data[dk];
-      if(!day?.quests) continue;
-      for(const q of day.quests){
-        if(!stat[q.category]) continue;
-        stat[q.category].minutes += Number(q.minutesSpent||0);
-        stat[q.category].count += 1;
-      }
-    }
-    return stat;
+function rqPickOne(arr){
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function rqHash(str){
+  let h = 2166136261;
+  for(let i=0;i<str.length;i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  function rqChooseCategoryByBalance(){
-    const stats = rqBuild7dStats();
-    const cats = ["Learning","Work/Project","Physical"];
-    const maxMin = Math.max(...cats.map(c => stats[c]?.minutes || 0), 1);
-
-    const scored = cats.map(c=>{
-      const m = stats[c]?.minutes || 0;
-      const w = 1 + (1 - (m / maxMin)); // 1..2
-      return { c, w };
-    });
-
-    const sum = scored.reduce((a,x)=>a+x.w,0);
-    let r = Math.random()*sum;
-    for(const it of scored){
-      r -= it.w;
-      if(r<=0) return it.c;
-    }
-    return scored[0].c;
+  return "H" + (h >>> 0).toString(36);
+}
+function rqExtractDomainFromQuestName(name){
+  const n = normQuestName(name);
+  if(!n) return "";
+  const cut = n.split("•")[0].split("-")[0].split("|")[0].trim();
+  return cut.replace(/\b(\d+)\s*(min|m)\b/ig,"").trim();
+}
+function rqClassifyLearningType(domain){
+  const d = (domain||"").toLowerCase();
+  const has = (list)=> list.some(k => d.includes(k.toLowerCase()));
+  if(has(SQ_DICE_GEN.kw.language)) return "language";
+  if(has(SQ_DICE_GEN.kw.math)) return "math";
+  return "generic";
+}
+function rqPickDuration(energy){
+  const arr = SQ_DICE_GEN.durations[energy] || SQ_DICE_GEN.durations.low;
+  return rqPickOne(arr);
+}
+function rqGetCurrentHour(){
+  return new Date().getHours();
+}
+function rqIsConnectionHourAllowed(){
+  const h = rqGetCurrentHour();
+  return h >= 8 && h < 19;
+}
+function rqEnergyAllowedForCategory(category, energy){
+  if(category === "Connection"){
+    return energy === "low";
   }
+  return true;
+}
+function rqGetDomainsFromHistory(category, lookbackDays = SQ_DICE_RULES.lookbackDays){
+  const data = loadAll();
+  const today = localDateKey();
+  const freq = new Map();
 
-  /* done ids per day */
-  function rqDoneKey(){ return KEY_RQ_DONE_PREFIX + localDateKey(); }
-  function rqGetDoneSet(){
-    try{
-      const raw = localStorage.getItem(rqDoneKey());
-      const arr = raw ? JSON.parse(raw) : [];
-      return new Set(Array.isArray(arr) ? arr : []);
-    }catch{
-      return new Set();
+  for(let i=0;i<lookbackDays;i++){
+    const dk = addDays(today, -i);
+    const day = data[dk];
+    if(!day?.quests) continue;
+    for(const q of day.quests){
+      if(q.category !== category) continue;
+      const dom = rqExtractDomainFromQuestName(q.questName);
+      if(!dom) continue;
+      const key = dom.toLowerCase();
+      freq.set(key, { dom, n: (freq.get(key)?.n || 0) + 1 });
     }
   }
-  function rqSaveDoneSet(set){
-    localStorage.setItem(rqDoneKey(), JSON.stringify([...set]));
-  }
-  function rqMarkDone(id){
-    const set = rqGetDoneSet();
-    set.add(id);
-    rqSaveDoneSet(set);
-  }
+  const sorted = [...freq.values()].sort((a,b)=> b.n - a.n);
+  return sorted.map(x => x.dom);
+}
 
-  /* cooldown */
-  function rqCooldownUntil(){
-    const v = Number(localStorage.getItem(KEY_RQ_CD) || 0);
-    return Number.isFinite(v) ? v : 0;
-  }
-  function rqIsCooldown(){
-    return Date.now() < rqCooldownUntil();
-  }
-  function rqCooldownLeft(){
-    const ms = rqCooldownUntil() - Date.now();
-    if(ms<=0) return "00:00";
-    return formatMMSS(Math.ceil(ms/1000));
-  }
-  function rqSetCooldown(){
-    const until = Date.now() + RQ_RULES.cooldownMin*60000;
-    localStorage.setItem(KEY_RQ_CD, String(until));
-  }
+/* ---------- 7d stats ---------- */
+function rqBuild7dStats(){
+  const data = loadAll();
+  const today = localDateKey();
+  const cats = ["Learning","Work/Project","Physical","Connection"];
+  const stat = {};
+  cats.forEach(c=> stat[c] = { minutes:0, count:0 });
 
-  /* selected */
-  function rqGetSelected(){
-    try{
-      const raw = localStorage.getItem(KEY_RQ_SEL);
-      const obj = raw ? JSON.parse(raw) : null;
-      if(!obj || typeof obj!=="object") return null;
-      if(!obj.id || !obj.name) return null;
-      return obj;
-    }catch{
-      return null;
+  for(let i=0;i<7;i++){
+    const dk = addDays(today, -i);
+    const day = data[dk];
+    if(!day?.quests) continue;
+    for(const q of day.quests){
+      if(!stat[q.category]) continue;
+      stat[q.category].minutes += Number(q.minutesSpent || 0);
+      stat[q.category].count += 1;
     }
   }
-  function rqSetSelected(q){
-    localStorage.setItem(KEY_RQ_SEL, JSON.stringify(q));
+  return stat;
+}
+function rqBuildRecentCategoryStats(days = 2){
+  const data = loadAll();
+  const today = localDateKey();
+  const stat = new Map();
+
+  for(let i=1;i<=days;i++){
+    const dk = addDays(today, -i);
+    const day = data[dk];
+    if(!day?.quests) continue;
+    for(const q of day.quests){
+      const c = q.category;
+      stat.set(c, (stat.get(c) || 0) + 1);
+    }
   }
-  function rqClearSelected(){
-    localStorage.removeItem(KEY_RQ_SEL);
+  return stat;
+}
+function rqWeightedPick(items){
+  const valid = items.filter(x => x.weight > 0);
+  if(!valid.length) return null;
+  const sum = valid.reduce((a,x)=> a + x.weight, 0);
+  let r = Math.random() * sum;
+  for(const item of valid){
+    r -= item.weight;
+    if(r <= 0) return item.value;
   }
+  return valid[0].value;
+}
 
-  /* build quest */
-  function rqBuildQuestFromGrammar(category, energy){
-    const dcfg = RQ_GEN.durations[energy] || RQ_GEN.durations.low;
-    const duration = rqRandInt(dcfg.min, dcfg.max);
+/* ---------- physical parsing ---------- */
+function rqGetPhysicalBodyPartFromName(name){
+  const txt = String(name || "").toLowerCase();
+  const map = [
+    ["อก", "อก"],
+    ["หลัง", "หลัง"],
+    ["ไหล่", "ไหล่"],
+    ["แขน", "แขน"],
+    ["ขา", "ขา"],
+    ["ท้อง", "ท้อง"]
+  ];
+  for(const [kw, part] of map){
+    if(txt.includes(kw)) return part;
+  }
+  return "";
+}
+function rqQuestIsPhysicalCardioName(name){
+  const txt = String(name || "").toLowerCase();
+  return ["เดิน","วิ่ง","mobility","ยืดเหยียด","คาร์ดิโอ"].some(k => txt.includes(k.toLowerCase()));
+}
+function rqGetRecentPhysicalParts(days = SQ_DICE_RULES.physicalCooldownDays){
+  const data = loadAll();
+  const today = localDateKey();
+  const used = new Set();
 
-    if(category === "Physical"){
-      const pick = rqPickOne(RQ_GEN.physical[energy] || RQ_GEN.physical.low);
-      const name = `Physical • ${pick}`;
-      const sig = `${category}|${name}|${duration}`;
-      return { id: rqHash(sig), category, duration, energy, name };
+  for(let i=1;i<=days;i++){
+    const dk = addDays(today, -i);
+    const day = data[dk];
+    if(!day?.quests) continue;
+    for(const q of day.quests){
+      if(q.category !== "Physical") continue;
+      const part = rqGetPhysicalBodyPartFromName(q.questName || q.name || "");
+      if(part) used.add(part);
     }
+  }
+  return used;
+}
 
-    if(category === "Learning"){
-      const domains = rqGetDomainsFromHistory("Learning");
-      const domain = domains[0] || "Learning";
-      const type = rqClassifyLearningType(domain);
-      const act = rqPickOne(RQ_GEN.learningActivities[type] || RQ_GEN.learningActivities.generic);
-      const name = `${domain} • ${act.act}${act.tail ? " + " + act.tail : ""}`;
-      const sig = `${category}|${name}|${duration}`;
-      return { id: rqHash(sig), category, duration, energy, name };
-    }
+/* ---------- filters ---------- */
+function rqGetAllowedCategories(energy){
+  const cats = ["Learning","Work/Project","Physical","Connection"];
+  return cats.filter(category => {
+    if(!rqEnergyAllowedForCategory(category, energy)) return false;
+    if(category === "Connection" && !rqIsConnectionHourAllowed()) return false;
+    return true;
+  });
+}
+function rqChooseCategorySmart(energy){
+  const allowed = rqGetAllowedCategories(energy);
+  if(!allowed.length) return null;
 
-    if(category === "Work/Project"){
-      const domains = rqGetDomainsFromHistory("Work/Project");
-      const domain = domains[0] || "Work";
-      const action = rqPickOne(RQ_GEN.workActions);
-      const name = `${domain} • ${action}`;
-      const sig = `${category}|${name}|${duration}`;
-      return { id: rqHash(sig), category, duration, energy, name };
-    }
+  const stats7 = rqBuild7dStats();
+  const recent = rqBuildRecentCategoryStats(2);
+  const maxMin = Math.max(...allowed.map(c => stats7[c]?.minutes || 0), 1);
 
+  const weighted = allowed.map(category => {
+    const minutes = stats7[category]?.minutes || 0;
+    const baseBalance = 1 + (1 - (minutes / maxMin)); // 1..2
+
+    let weight = baseBalance;
+
+    const recentHits = recent.get(category) || 0;
+    if(recentHits >= 2) weight *= 0.45;
+    else if(recentHits === 1) weight *= 0.72;
+
+    /* connection soft penalty if yesterday had it */
     if(category === "Connection"){
-      const actions = ["ทักคนสำคัญ", "อัปเดตงานให้คนเกี่ยวข้อง", "ขอ feedback", "ตอบแชทค้าง"];
-      const name = `Connection • ${rqPickOne(actions)} Focus`;
-      const sig = `${category}|${name}|${duration}`;
-      return { id: rqHash(sig), category, duration, energy, name };
+      const y = recent.get("Connection") || 0;
+      if(y >= 1) weight *= 0.35;
     }
 
-    const fb = rqPickOne(RQ_GEN.fallbackPool[energy] || RQ_GEN.fallbackPool.low);
-    const name = `${fb.name}${fb.tail ? " + " + fb.tail : ""}`;
-    const sig = `${fb.category}|${name}|${duration}`;
-    return { id: rqHash(sig), category: fb.category, duration, energy, name };
+    /* low energy should slightly favor learning/work over physical brute force */
+    if(energy === "low" && category === "Physical"){
+      weight *= 0.85;
+    }
+
+    return { value: category, weight };
+  });
+
+  return rqWeightedPick(weighted);
+}
+
+/* ---------- quest builder ---------- */
+function rqBuildLearningQuest(energy){
+  const duration = rqPickDuration(energy);
+  const domains = rqGetDomainsFromHistory("Learning");
+  const domain = domains[0] || "Learning";
+  const type = rqClassifyLearningType(domain);
+  const act = rqPickOne(SQ_DICE_GEN.learningActivities[type] || SQ_DICE_GEN.learningActivities.generic);
+
+  const name = `${domain} • ${act.act}${act.tail ? " + " + act.tail : ""}`;
+  return {
+    id: rqHash(`Learning|${name}|${duration}`),
+    category: "Learning",
+    duration,
+    energy,
+    name
+  };
+}
+function rqBuildWorkQuest(energy){
+  const duration = rqPickDuration(energy);
+  const domains = rqGetDomainsFromHistory("Work/Project");
+  const domain = domains[0] || "Work";
+  const action = rqPickOne(SQ_DICE_GEN.workActions);
+  const name = `${domain} • ${action}`;
+
+  return {
+    id: rqHash(`Work/Project|${name}|${duration}`),
+    category: "Work/Project",
+    duration,
+    energy,
+    name
+  };
+}
+function rqBuildPhysicalQuest(energy){
+  const duration = rqPickDuration(energy);
+
+  /* low = cardio/recovery only */
+  if(energy === "low"){
+    const kind = rqPickOne(SQ_DICE_GEN.physical.cardio);
+    const name = `Physical • ${kind}`;
+    return {
+      id: rqHash(`Physical|${name}|${duration}`),
+      category: "Physical",
+      duration,
+      energy,
+      name,
+      subtype: "cardio"
+    };
   }
 
-  function rqPick(energy){
-    const category = rqChooseCategoryByBalance();
-    const done = rqGetDoneSet();
+  /* mid = bodypart OR cardio */
+  if(energy === "mid"){
+    const recentParts = rqGetRecentPhysicalParts();
+    const bodyCandidates = SQ_DICE_GEN.physical.bodypart.filter(part => !recentParts.has(part));
 
+    const canBody = bodyCandidates.length > 0;
+    const pickBody = canBody && Math.random() < 0.75;
+
+    if(pickBody){
+      const part = rqPickOne(bodyCandidates);
+      const name = `Physical • ${part}`;
+      return {
+        id: rqHash(`Physical|${name}|${duration}`),
+        category: "Physical",
+        duration,
+        energy,
+        name,
+        subtype: "bodypart",
+        bodyPart: part
+      };
+    }
+
+    const kind = rqPickOne(SQ_DICE_GEN.physical.cardio);
+    const name = `Physical • ${kind}`;
+    return {
+      id: rqHash(`Physical|${name}|${duration}`),
+      category: "Physical",
+      duration,
+      energy,
+      name,
+      subtype: "cardio"
+    };
+  }
+
+  /* high = bodypart only */
+  const recentParts = rqGetRecentPhysicalParts();
+  const bodyCandidates = SQ_DICE_GEN.physical.bodypart.filter(part => !recentParts.has(part));
+  const part = bodyCandidates.length ? rqPickOne(bodyCandidates) : rqPickOne(SQ_DICE_GEN.physical.bodypart);
+  const name = `Physical • ${part}`;
+
+  return {
+    id: rqHash(`Physical|${name}|${duration}`),
+    category: "Physical",
+    duration,
+    energy,
+    name,
+    subtype: "bodypart",
+    bodyPart: part
+  };
+}
+function rqBuildConnectionQuest(energy){
+  const duration = rqPickOne([10, 15]);
+  const action = rqPickOne(SQ_DICE_GEN.connection.low);
+  const name = `Connection • ${action}`;
+
+  return {
+    id: rqHash(`Connection|${name}|${duration}`),
+    category: "Connection",
+    duration,
+    energy,
+    name,
+    subtype: "reachout"
+  };
+}
+function rqBuildQuestByCategory(category, energy){
+  if(category === "Learning") return rqBuildLearningQuest(energy);
+  if(category === "Work/Project") return rqBuildWorkQuest(energy);
+  if(category === "Physical") return rqBuildPhysicalQuest(energy);
+  if(category === "Connection") return rqBuildConnectionQuest(energy);
+
+  const fb = rqPickOne(SQ_DICE_GEN.fallbackPool[energy] ||SQ_DICE_GEN.fallbackPool.low);
+  const duration = rqPickDuration(energy);
+  const name = `${fb.name}${fb.tail ? " + " + fb.tail : ""}`;
+  return {
+    id: rqHash(`${fb.category}|${name}|${duration}`),
+    category: fb.category,
+    duration,
+    energy,
+    name
+  };
+}
+
+/* ---------- validation ---------- */
+function rqValidateQuestCandidate(q, doneSet){
+  if(!q) return false;
+  if(doneSet.has(q.id)) return false;
+
+  if(q.category === "Connection"){
+    if(q.energy !== "low") return false;
+    if(!rqIsConnectionHourAllowed()) return false;
+  }
+
+  if(q.category === "Physical"){
+    const isCardio = q.subtype === "cardio" || rqQuestIsPhysicalCardioName(q.name);
+    const part = q.bodyPart || rqGetPhysicalBodyPartFromName(q.name);
+
+    if(isCardio && q.energy === "high") return false;
+    if(part){
+      const recentParts = rqGetRecentPhysicalParts();
+      if(recentParts.has(part)) return false;
+    }
+  }
+
+  return true;
+}
+
+/* ---------- main pick ---------- */
+function rqPick(energy){
+  const done = rqGetDoneSet();
+  const category = rqChooseCategorySmart(energy);
+
+  if(!category){
+    return { ok:false, reason:"NO_ALLOWED_CATEGORY" };
+  }
+
+  for(let i=0;i<12;i++){
+    const q = rqBuildQuestByCategory(category, energy);
+    if(rqValidateQuestCandidate(q, done)){
+      return { ok:true, quest:q };
+    }
+  }
+
+  /* fallback to other allowed categories */
+  const allowed = rqGetAllowedCategories(energy).filter(c => c !== category);
+  for(const alt of allowed){
     for(let i=0;i<8;i++){
-      const q = rqBuildQuestFromGrammar(category, energy);
-      if(!done.has(q.id)) return { ok:true, quest:q };
-    }
-
-    const fb = rqPickOne(RQ_GEN.fallbackPool[energy] || RQ_GEN.fallbackPool.low);
-    const duration = rqRandInt(RQ_GEN.durations[energy].min, RQ_GEN.durations[energy].max);
-    const name = `${fb.name}${fb.tail ? " + " + fb.tail : ""}`;
-    const q = { id: rqHash(`${fb.category}|${name}|${duration}`), category: fb.category, duration, energy, name };
-    if(!done.has(q.id)) return { ok:true, quest:q };
-
-    return { ok:false, reason:"NO_CANDIDATES" };
-  }
-
-  function rqOpenModal(){
-    if(!el.rqOverlay) return;
-    if(el.diceFab && el.diceFab.style.display === "none") return;
-    el.rqOverlay.classList.add("show");
-    el.rqOverlay.setAttribute("aria-hidden","false");
-    document.body.style.overflow = "hidden";
-  }
-  function rqCloseModal(){
-    if(!el.rqOverlay) return;
-    el.rqOverlay.classList.remove("show");
-    el.rqOverlay.setAttribute("aria-hidden","true");
-    document.body.style.overflow = "";
-  }
-  function rqRenderSelectedToModal(){
-    const q = rqGetSelected();
-    if(!q){
-      el.rqResult2?.classList.remove("show");
-      if(el.rqBigName) el.rqBigName.textContent = "—";
-      if(el.rqMeta2) el.rqMeta2.textContent = "—";
-      return;
-    }
-    el.rqResult2?.classList.add("show");
-    if(el.rqBigName) el.rqBigName.textContent = q.name;
-    if(el.rqMeta2) el.rqMeta2.textContent = `${q.category} • ${q.duration} min • ${String(q.energy).toUpperCase()}`;
-  }
-  function rqShowIfEligible(){
-    if(!el.diceFab || !el.diceBtn || !el.diceCd) return;
-
-    el.diceFab.style.display = "flex";
-
-    const blockedByGate = (isGateActiveToday() && !gate.passed && !isFirstQuestAlreadyDoneToday());
-    el.diceBtn.disabled = blockedByGate || rqIsCooldown();
-    if(blockedByGate){
-      el.diceCd.classList.add("show");
-      el.diceCd.innerHTML = `ผ่าน Gate ก่อนถึงจะสุ่มได้`;
-    }else{
-      rqTickUI();
+      const q = rqBuildQuestByCategory(alt, energy);
+      if(rqValidateQuestCandidate(q, done)){
+        return { ok:true, quest:q };
+      }
     }
   }
-  function rqTickUI(){
-    if(!el.diceBtn || !el.diceCd) return;
 
-    const locked = rqIsCooldown();
-    if(locked){
-      el.diceCd.classList.add("show");
-      el.diceCd.innerHTML = `Cooldown: <b>${rqCooldownLeft()}</b>`;
-      el.diceBtn.classList.remove("dicePulse");
-      el.diceBtn.disabled = true;
-    }else{
-      el.diceCd.classList.remove("show");
-      el.diceBtn.classList.add("dicePulse");
-      // disabled = gate block handled by rqShowIfEligible
-    }
-
-    if(el.rqPickLow)  el.rqPickLow.disabled  = locked;
-    if(el.rqPickMid)  el.rqPickMid.disabled  = locked;
-    if(el.rqPickHigh) el.rqPickHigh.disabled = locked;
-
-    rqRenderSelectedToModal();
+  return { ok:false, reason:"NO_CANDIDATES" };
+}
+/* ---------- done ids per day ---------- */
+function rqDoneKey(){ 
+  return KEY_RQ_DONE_PREFIX + localDateKey(); 
+}
+function rqGetDoneSet(){
+  try{
+    const raw = localStorage.getItem(rqDoneKey());
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr : []);
+  }catch{
+    return new Set();
   }
-  function rqHandleRandom(energy){
-    if(state.status !== "idle"){
-      showTimerWarn("สุ่มได้ตอน Idle เท่านั้น");
-      return;
-    }
-    if(rqIsCooldown()){
-      rqTickUI();
-      showTimerWarn("ติด cooldown");
-      return;
-    }
+}
+function rqSaveDoneSet(set){
+  localStorage.setItem(rqDoneKey(), JSON.stringify([...set]));
+}
+function rqMarkDone(id){
+  const set = rqGetDoneSet();
+  set.add(id);
+  rqSaveDoneSet(set);
+}
 
-    el.diceBtn?.classList.add("rqSpin");
-    setTimeout(()=> el.diceBtn?.classList.remove("rqSpin"), 560);
+/* ---------- cooldown ---------- */
+function rqCooldownUntil(){
+  const v = Number(localStorage.getItem(KEY_RQ_CD) || 0);
+  return Number.isFinite(v) ? v : 0;
+}
+function rqIsCooldown(){
+  return Date.now() < rqCooldownUntil();
+}
+function rqCooldownLeft(){
+  const ms = rqCooldownUntil() - Date.now();
+  if(ms <= 0) return "00:00";
+  return formatMMSS(Math.ceil(ms / 1000));
+}
+function rqSetCooldown(){
+  const until = Date.now() + SQ_DICE_RULES.cooldownMin * 60000;
+  localStorage.setItem(KEY_RQ_CD, String(until));
+}
 
-    const res = rqPick(energy);
-    if(!res.ok){
-      showTimerWarn("วันนี้สุ่มหมดแล้ว (พลังงานนี้)");
-      return;
-    }
+/* ---------- selected ---------- */
+function rqGetSelected(){
+  try{
+    const raw = localStorage.getItem(KEY_RQ_SEL);
+    const obj = raw ? JSON.parse(raw) : null;
+    if(!obj || typeof obj !== "object") return null;
+    if(!obj.id || !obj.name) return null;
+    return obj;
+  }catch{
+    return null;
+  }
+}
+function rqSetSelected(q){
+  localStorage.setItem(KEY_RQ_SEL, JSON.stringify(q));
+}
+function rqClearSelected(){
+  localStorage.removeItem(KEY_RQ_SEL);
+}
 
-    rqSetSelected(res.quest);
-    rqSetCooldown();
+/* ---------- modal ---------- */
+function rqOpenModal(){
+  if(!el.rqOverlay) return;
+  if(el.diceFab && el.diceFab.style.display === "none") return;
+  el.rqOverlay.classList.add("show");
+  el.rqOverlay.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+function rqCloseModal(){
+  if(!el.rqOverlay) return;
+  el.rqOverlay.classList.remove("show");
+  el.rqOverlay.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+/* ---------- render ---------- */
+function rqRenderSelectedToModal(){
+  const q = rqGetSelected();
+  if(!q){
+    el.rqResult2?.classList.remove("show");
+    if(el.rqBigName) el.rqBigName.textContent = "—";
+    if(el.rqMeta2) el.rqMeta2.textContent = "—";
+    return;
+  }
+
+  el.rqResult2?.classList.add("show");
+  if(el.rqBigName) el.rqBigName.textContent = q.name;
+  if(el.rqMeta2) el.rqMeta2.textContent = `${q.category} • ${q.duration} min • ${String(q.energy).toUpperCase()}`;
+}
+
+function rqShowIfEligible(){
+  if(!el.diceFab || !el.diceBtn || !el.diceCd) return;
+
+  el.diceFab.style.display = "flex";
+
+  const blockedByGate = (isGateActiveToday() && !gate.passed && !isFirstQuestAlreadyDoneToday());
+  el.diceBtn.disabled = blockedByGate || rqIsCooldown();
+
+  if(blockedByGate){
+    el.diceCd.classList.add("show");
+    el.diceCd.innerHTML = `ผ่าน Gate ก่อนถึงจะสุ่มได้`;
+  }else{
     rqTickUI();
   }
-  function rqStartNow(){
-    if(state.status !== "idle"){
-      showTimerWarn("ต้องอยู่ Idle ก่อน");
-      return;
-    }
-    const q = rqGetSelected();
-    if(!q){
-      showTimerWarn("ยังไม่ได้สุ่มเควส");
-      return;
-    }
+}
 
-    if(el.category) el.category.value = q.category;
-    if(el.questName) el.questName.value = q.name;
-    state.selectedCategory = q.category;
-    state.questName = q.name;
+function rqTickUI(){
+  if(!el.diceBtn || !el.diceCd) return;
 
-    state.cutEnabled = true;
-    state.cutMinutes = q.duration;
-    if(el.cutMinutes) el.cutMinutes.value = String(q.duration);
-    if(el.cutMode) el.cutMode.value = "hard";
-    state.cutMode = "hard";
+  const locked = rqIsCooldown();
 
-    saveState();
-    renderCutUI();
-    clearNameWarn();
-
-    startQuest();
-
-    if(state.status === "running"){
-      rqMarkDone(q.id);
-    }
+  if(locked){
+    el.diceCd.classList.add("show");
+    el.diceCd.innerHTML = `Cooldown: <b>${rqCooldownLeft()}</b>`;
+    el.diceBtn.classList.remove("dicePulse");
+    el.diceBtn.disabled = true;
+  }else{
+    el.diceCd.classList.remove("show");
+    el.diceBtn.classList.add("dicePulse");
   }
 
+  if(el.rqPickLow)  el.rqPickLow.disabled  = locked;
+  if(el.rqPickMid)  el.rqPickMid.disabled  = locked;
+  if(el.rqPickHigh) el.rqPickHigh.disabled = locked;
+
+  rqRenderSelectedToModal();
+}
+
+/* ---------- actions ---------- */
+function rqHandleRandom(energy){
+  if(state.status !== "idle"){
+    showTimerWarn("สุ่มได้ตอน Idle เท่านั้น");
+    return;
+  }
+
+  if(rqIsCooldown()){
+    rqTickUI();
+    showTimerWarn("ติด cooldown");
+    return;
+  }
+
+  el.diceBtn?.classList.add("rqSpin");
+  setTimeout(()=> el.diceBtn?.classList.remove("rqSpin"), 560);
+
+  const res = rqPick(energy);
+  if(!res.ok){
+    showTimerWarn("วันนี้สุ่มไม่เจอเควสที่สมเหตุสมผลแล้ว");
+    return;
+  }
+
+  rqSetSelected(res.quest);
+  rqSetCooldown();
+  rqTickUI();
+}
+
+function rqStartNow(){
+  if(state.status !== "idle"){
+    showTimerWarn("ต้องอยู่ Idle ก่อน");
+    return;
+  }
+
+  const q = rqGetSelected();
+  if(!q){
+    showTimerWarn("ยังไม่ได้สุ่มเควส");
+    return;
+  }
+
+  if(el.category) el.category.value = q.category;
+  if(el.questName) el.questName.value = q.name;
+
+  state.selectedCategory = q.category;
+  state.questName = q.name;
+
+  state.cutEnabled = true;
+  state.cutMinutes = q.duration;
+  state.cutMode = "hard";
+
+  if(el.cutMinutes) el.cutMinutes.value = String(q.duration);
+  if(el.cutMode) el.cutMode.value = "hard";
+
+  saveState();
+  renderCutUI();
+  clearNameWarn();
+
+  startQuest();
+
+  if(state.status === "running"){
+    rqMarkDone(q.id);
+  }
+}
   /* =========================
     TIMER TICK
   ========================= */
@@ -5406,18 +5666,6 @@ function initDiceDrag(){
       applyDicePos(diceDrag.left, diceDrag.top);
       saveDicePos(diceDrag.left, diceDrag.top);
     }
-  });
-}
-function switchPage(pageId){
-  document.querySelectorAll(".page").forEach(el=>{
-    el.classList.remove("page-active");
-  });
-
-  const target = document.getElementById(pageId);
-  if(target) target.classList.add("page-active");
-
-  document.querySelectorAll(".bottomNavBtn").forEach(btn=>{
-    btn.classList.toggle("active", btn.dataset.page === pageId);
   });
 }
 
