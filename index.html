@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>SakuraQ v0.8.0</title>
+    <title>SakuraQ v0.8.1</title>
 
     <style>
       :root{
@@ -2410,14 +2410,14 @@ linear-gradient(
 }
 
 .actionLockBubble{
-  margin-left: 54px;
+  margin-left: 60px;
   width: 100%;
-  min-height: 64px;
+  min-height: 72px;
 
   display: flex;
   align-items: center;
 
-  padding: 12px 14px 12px 18px;
+  padding: 14px 16px 14px 20px;
   border-radius: 18px;
   background: linear-gradient(
     180deg,
@@ -2435,10 +2435,10 @@ linear-gradient(
 
 .actionLockText{
   font-size: 13px;
-  line-height: 1.45;
-  font-weight: 850;
+  line-height: 1.55;
+  font-weight: 800;
   color: var(--ink);
-  letter-spacing: -.01em;
+  letter-spacing: 0;
 }
 
 /* mobile tweak */
@@ -2460,17 +2460,17 @@ linear-gradient(
     bottom: -20px;
   }
 
-  .actionLockBubble{
-    margin-left: 55px;
-    min-height: 40px;
-    padding: 11px 12px 11px 17px;
-    border-radius: 16px;
-  }
+.actionLockBubble{
+  margin-left: 62px;
+  min-height: 52px;
+  padding: 12px 14px 12px 18px;
+  border-radius: 16px;
+}
 
-  .actionLockText{
-    font-size: 14px;
-    line-height: 1.4;
-  }
+.actionLockText{
+  font-size: 13px;
+  line-height: 1.5;
+}
 
   /* =========================
    TIMER PAGE POLISH v1
@@ -2759,7 +2759,7 @@ linear-gradient(
                   <div class="brandMeta">
                     <div class="brandTitleRow">
                       <h1>SakuraQ</h1>
-                      <span class="versionBadge">v0.8.1C</span>
+                      <span class="versionBadge">v0.8.1</span>
                     </div>
                     <div class="sub" id="todayText">Today: ----</div>
                   </div>
@@ -3151,7 +3151,7 @@ linear-gradient(
 
       <div class="actionLockBubble">
         <div id="actionLockText" class="actionLockText">
-          อ้ะ! ตอนนี้กำลังทำเควสอยู่ ยังใช้ฟังก์ชันนี้ไม่ได้นะ
+          ไม่ได้นะ! ตอนนี้กำลังทำเควสอยู่ ยังใช้ฟังก์ชันนี้ไม่ได้นะ
         </div>
       </div>
     </div>
@@ -3199,6 +3199,12 @@ let smartWarnSent = false
   const KEY_RQ_SEL         = "qps_rq_selected";
   // AUTO-draft-report
   const REPORT_DRAFT_KEY = "qps_report_draft_v1";
+
+  const KEY_TAB_MASTER = "qps_master_tab_v1";
+
+const TAB_ID = `tab_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+let isMasterTab = false;
+let tabHeartbeat = null;
 
   /* =========================
     RULES
@@ -3318,7 +3324,74 @@ let smartWarnSent = false
     if(h>0) return `${h}h ${m}m`;
     return `${m}m`;
   }
+function readMasterTab(){
+  try{
+    return JSON.parse(localStorage.getItem(KEY_TAB_MASTER));
+  }catch{
+    return null;
+  }
+}
 
+function writeMasterTab(){
+  const payload = {
+    tabId: TAB_ID,
+    ts: Date.now()
+  };
+  localStorage.setItem(KEY_TAB_MASTER, JSON.stringify(payload));
+}
+
+function clearMasterTab(){
+  const current = readMasterTab();
+  if(current && current.tabId === TAB_ID){
+    localStorage.removeItem(KEY_TAB_MASTER);
+  }
+}
+
+function acquireMasterTab(){
+  const current = readMasterTab();
+  const now = Date.now();
+
+  // ถ้าไม่มี master หรือ heartbeat เก่าเกิน 4 วิ ให้ยึดได้
+  if(!current || !current.tabId || (now - Number(current.ts || 0) > 4000)){
+    writeMasterTab();
+    isMasterTab = true;
+    return true;
+  }
+
+  if(current.tabId === TAB_ID){
+    isMasterTab = true;
+    return true;
+  }
+
+  isMasterTab = false;
+  return false;
+}
+
+function startTabHeartbeat(){
+  if(tabHeartbeat) clearInterval(tabHeartbeat);
+
+  tabHeartbeat = setInterval(()=>{
+    if(isMasterTab){
+      writeMasterTab();
+    }else{
+      acquireMasterTab();
+    }
+    renderMultiTabState();
+  }, 1500);
+}
+
+function stopTabHeartbeat(){
+  if(tabHeartbeat){
+    clearInterval(tabHeartbeat);
+    tabHeartbeat = null;
+  }
+}
+function renderMultiTabState(){
+  if(!isMasterTab && state.status === "idle"){
+    // ยังไม่ต้องโชว์ตลอด เดี๋ยวรก
+    // เอาไว้ใช้ตอน user พยายาม start quest
+  }
+}
   /* =========================
     DATA LAYER
   ========================= */
@@ -5273,6 +5346,13 @@ function rqStartNow(){
     return;
   }
 
+  acquireMasterTab();
+
+if(!isMasterTab){
+  showActionLockBar("แท็บนี้เป็นแท็บรอง • ยังเริ่มเควสจาก Random Quest ไม่ได้");
+  return;
+}
+
   const q = rqGetSelected();
   if(!q){
     showTimerWarn("ยังไม่ได้สุ่มเควส");
@@ -5395,6 +5475,13 @@ function rqStartNow(){
 
   async function startQuest(){
   if(state.status !== "idle") return;
+
+  acquireMasterTab();
+
+if(!isMasterTab){
+  showActionLockBar("  อ้ะ! แท็บนี้เป็นแท็บรอง ไปใช้แท็บหลัก หรือปิดอีกแท็บก่อน  ");
+  return;
+}
 
   resetNotificationFlags();
 
@@ -5949,7 +6036,7 @@ function clearReportDraft(){
   closeTopMenu();
 
   if(state.status !== "idle"){
-    showActionLockBar("อ้ะ! กำลังทำเควสอยู่ ยังเข้า Morning Gate ไม่ได้นะ");
+    showActionLockBar("ไม่ได้นะ! กำลังทำเควสอยู่ ยังเข้า Morning Gate ไม่ได้นะ");
     return;
   }
   openGatePage();
@@ -6725,6 +6812,16 @@ function playQuestDoneSound(){
     console.error("Sound error:", err);
   }
 }
+
+window.addEventListener("beforeunload", ()=>{
+  clearMasterTab();
+});
+
+window.addEventListener("storage", (e)=>{
+  if(e.key === KEY_TAB_MASTER){
+    acquireMasterTab();
+  }
+});
   /* =========================
     BOOT
   ========================= */
@@ -6764,6 +6861,10 @@ registerSW();
 switchPage("homeScene");
 setQuestCategory(state.selectedCategory || "Learning");
 initDiceDrag();
+
+acquireMasterTab();
+startTabHeartbeat();
+
     startTick();
   }
   boot();
