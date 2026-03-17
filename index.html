@@ -2808,6 +2808,20 @@ linear-gradient(
   height:100%;
   display:block;
 }
+
+.overlay{
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.overlay.show{
+  display: flex;
+}
+
 </style>
 </head>
 <body>
@@ -3304,7 +3318,48 @@ linear-gradient(
       </div>
     </div>
 
+<div class="card statCard">
+  <div class="statLabel">Productive Days</div>
+  <div class="statValue" id="histProductiveDays">--</div>
+</div>
+
+<div class="card statCard">
+  <div class="statLabel">Dead Days</div>
+  <div class="statValue" id="histDeadDays">--</div>
+</div>
+
+<div class="card statCard">
+  <div class="statLabel">Best Streak</div>
+  <div class="statValue" id="histBestStreak">--</div>
+</div>
+
   </div>
+
+  <section class="historySection">
+  <div class="sectionLabel">Analytics</div>
+
+  <div class="historyMiniGrid">
+    <div class="miniStatCard">
+      <div class="miniStatLabel">Total Quests</div>
+      <div class="miniStatValue" id="histTotalQuests">0</div>
+    </div>
+
+    <div class="miniStatCard">
+      <div class="miniStatLabel">Most Used</div>
+      <div class="miniStatValue" id="histMostUsedCategory">--</div>
+    </div>
+
+    <div class="miniStatCard">
+      <div class="miniStatLabel">Avg Session</div>
+      <div class="miniStatValue" id="histAvgSession">0 min</div>
+    </div>
+
+    <div class="miniStatCard">
+      <div class="miniStatLabel">Consistency</div>
+      <div class="miniStatValue" id="histConsistency">0%</div>
+    </div>
+  </div>
+</section>
 </section>
 
     <!-- ONBOARDING -->
@@ -3690,74 +3745,7 @@ function renderMultiTabState(){
     // เอาไว้ใช้ตอน user พยายาม start quest
   }
 }
-function getHistoryDaysByRange(range){
-  const allDays = listDays().slice().reverse(); // เก่า -> ใหม่
 
-  if(range === "all") return allDays;
-
-  const map = {
-    "3d": 3,
-    "7d": 7,
-    "30d": 30
-  };
-
-  const limit = map[range] || 7;
-  const today = localDateKey();
-
-  const wanted = [];
-  for(let i = limit - 1; i >= 0; i--){
-    wanted.push(addDays(today, -i));
-  }
-
-  return wanted;
-}
-function getHistorySummary(range){
-  const days = getHistoryDaysByRange(range);
-  const data = loadAll();
-
-  let totalQps = 0;
-  let totalActiveDays = 0;
-  let bestDayKey = "--";
-  let bestDayScore = 0;
-
-  days.forEach(dayKey => {
-    const day = data[dayKey];
-    const score = day ? Number(day.totalQps || 0) : 0;
-
-    totalQps += score;
-
-    if(score > 0){
-      totalActiveDays++;
-    }
-
-    if(score > bestDayScore){
-      bestDayScore = score;
-      bestDayKey = dayKey;
-    }
-  });
-
-  const avgDay = days.length ? (totalQps / days.length) : 0;
-  const streak = loadStreak()?.current || 0;
-
-  return {
-    totalQps: round1(totalQps),
-    avgDay: round1(avgDay),
-    bestDayKey,
-    bestDayScore: round1(bestDayScore),
-    streak
-  };
-}
-function getDayQuestLog(dayKey){
-  const data = loadAll();
-  const day = data[dayKey];
-
-  if(!day || !Array.isArray(day.quests)) return [];
-
-  return day.quests.slice().sort((a,b)=> Number(b.ts || 0) - Number(a.ts || 0));
-}
-function getDayNotes(dayKey){
-  return getDayQuestLog(dayKey).filter(q => String(q.notes || "").trim());
-}
   /* =========================
     DATA LAYER
   ========================= */
@@ -4095,6 +4083,15 @@ histQuestLog: $("histQuestLog"),
 
 histNotesFeed: $("histNotesFeed"),
 histDayTabs: $("histDayTabs"),
+
+histProductiveDays: $("histProductiveDays"),
+histDeadDays: $("histDeadDays"),
+histBestStreak: $("histBestStreak"),
+
+ histTotalQuests: $("histTotalQuests"),
+histMostUsedCategory: $("histMostUsedCategory"),
+histAvgSession: $("histAvgSession"),
+histConsistency: $("histConsistency"),     
   };
 
   /* =========================
@@ -7227,11 +7224,163 @@ window.addEventListener("storage", (e)=>{
 /* =========================================
    HISTORY
 ========================================= */
+function getHistoryDaysByRange(range){
+  const allDays = listDays().slice().reverse(); // เก่า -> ใหม่
 
+  if(range === "all") return allDays;
+
+  const map = {
+    "3d": 3,
+    "7d": 7,
+    "30d": 30
+  };
+
+  const limit = map[range] || 7;
+  const today = localDateKey();
+
+  const wanted = [];
+  for(let i = limit - 1; i >= 0; i--){
+    wanted.push(addDays(today, -i));
+  }
+
+  return wanted;
+}
+function getHistorySummary(range){
+  const days = getHistoryDaysByRange(range);
+  const data = loadAll();
+
+  let totalQps = 0;
+  let totalActiveDays = 0;
+  let bestDayKey = "--";
+  let bestDayScore = 0;
+
+  days.forEach(dayKey => {
+    const day = data[dayKey];
+    const score = day ? Number(day.totalQps || 0) : 0;
+
+    totalQps += score;
+
+    if(score > 0){
+      totalActiveDays++;
+    }
+
+    if(score > bestDayScore){
+      bestDayScore = score;
+      bestDayKey = dayKey;
+    }
+  });
+
+  const avgDay = days.length ? (totalQps / days.length) : 0;
+  const streak = loadStreak()?.current || 0;
+
+  return {
+    totalQps: round1(totalQps),
+    avgDay: round1(avgDay),
+    bestDayKey,
+    bestDayScore: round1(bestDayScore),
+    streak
+  };
+}
+
+function getHistoryExtraStats(range){
+  const days = getHistoryDaysByRange(range);
+  const data = loadAll();
+
+  let productiveDays = 0;
+  let deadDays = 0;
+  let bestStreak = 0;
+  let currentRun = 0;
+
+  days.forEach(dayKey => {
+    const day = data[dayKey];
+    const score = day ? Number(day.totalQps || 0) : 0;
+
+    if(score > 0){
+      productiveDays += 1;
+      currentRun += 1;
+      if(currentRun > bestStreak) bestStreak = currentRun;
+    }else{
+      deadDays += 1;
+      currentRun = 0;
+    }
+  });
+
+  return {
+    productiveDays,
+    deadDays,
+    bestStreak
+  };
+}
+function getDayQuestLog(dayKey){
+  const data = loadAll();
+  const day = data[dayKey];
+
+  if(!day || !Array.isArray(day.quests)) return [];
+
+  return day.quests
+    .map(q => {
+      const ts =
+        q.ts ??
+        q.timestamp ??
+        q.time ??
+        q.createdAt ??
+        null;
+
+      const questName =
+        q.questName ??
+        q.name ??
+        q.title ??
+        "(no name)";
+
+      const category =
+        q.category ??
+        q.type ??
+        "Other";
+
+      const minutesSpent =
+        typeof q.minutesSpent === "number" ? q.minutesSpent :
+        typeof q.minutes === "number" ? q.minutes :
+        typeof q.duration === "number" ? q.duration :
+        typeof q.durationMin === "number" ? q.durationMin :
+        0;
+
+      const questScore =
+        typeof q.questScore === "number" ? q.questScore :
+        typeof q.score === "number" ? q.score :
+        typeof q.totalScore === "number" ? q.totalScore :
+        0;
+
+      return {
+        ...q,
+        ts,
+        questName,
+        category,
+        minutesSpent,
+        questScore,
+        notes: q.notes || ""
+      };
+    })
+    .sort((a, b) => Number(b.ts || 0) - Number(a.ts || 0));
+}
+function formatQuestTime(ts){
+  if(!ts) return "--:--";
+
+  const d = new Date(ts);
+  if(Number.isNaN(d.getTime())) return "--:--";
+
+  return d.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+function getDayNotes(dayKey){
+  return getDayQuestLog(dayKey).filter(q => String(q.notes || "").trim());
+}
 function renderHistoryPageStub(){
   const summary = getHistorySummary(historyRange);
   const days = getHistoryDaysByRange(historyRange);
   const breakdown = getHistoryCategoryBreakdown(historyRange);
+  const extra = getHistoryExtraStats(historyRange);
 
   if(!historySelectedDay || !days.includes(historySelectedDay)){
     historySelectedDay = days[days.length - 1] || localDateKey(); // วันล่าสุดในช่วง
@@ -7249,8 +7398,12 @@ function renderHistoryPageStub(){
   if(el.histBestDay) el.histBestDay.textContent =
     summary.bestDayScore > 0 ? `${summary.bestDayScore.toFixed(1)} • ${summary.bestDayKey}` : "--";
   if(el.histCurrentStreak) el.histCurrentStreak.textContent = String(summary.streak);
+  if(el.histProductiveDays) el.histProductiveDays.textContent = String(extra.productiveDays);
+if(el.histDeadDays) el.histDeadDays.textContent = String(extra.deadDays);
+if(el.histBestStreak) el.histBestStreak.textContent = String(extra.bestStreak);
 
   renderHistoryTrendChart();
+  renderHistoryAnalytics();
 
   // Day detail
   if(el.histSelectedDay) el.histSelectedDay.textContent = historySelectedDay;
@@ -7263,7 +7416,7 @@ function renderHistoryPageStub(){
       el.histQuestLog.innerHTML = selectedLog.map(item => {
         const name = normQuestName(item.questName) || "(no name)";
 
-        const time = new Date(item.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        const time = formatQuestTime(item.ts);
         return `
           <div class="item">
             <div class="itemTop">
@@ -7568,6 +7721,207 @@ const xLabels = coords.map((p, i) => {
     </svg>
   `;
 }
+function getHistoryDaysData(range){
+  const days = getHistoryDaysByRange(range);
+  const data = loadAll();
+
+  return days.map(dayKey => {
+    const day = data[dayKey] || {};
+    const quests = Array.isArray(day.quests) ? day.quests : [];
+    const notes = Array.isArray(day.notes) ? day.notes : [];
+    const totalQps = Number(day.totalQps || 0);
+
+    return {
+      dayKey,
+      totalQps,
+      quests,
+      notes
+    };
+  });
+}
+
+function getQuestCategory(q){
+  return q.category || q.type || "other";
+}
+
+function getQuestMinutes(q){
+  if(typeof q.minutesSpent === "number") return q.minutesSpent;
+  if(typeof q.minutes === "number") return q.minutes;
+  if(typeof q.duration === "number") return q.duration;
+  if(typeof q.durationMin === "number") return q.durationMin;
+  return 0;
+}
+
+function formatCategoryName(cat){
+  const map = {
+    "learn": "Learning",
+    "learning": "Learning",
+    "work": "Work/Project",
+    "work/project": "Work/Project",
+    "physical": "Physical",
+    "connect": "Connection",
+    "connection": "Connection",
+    "other": "Other"
+  };
+
+  const key = String(cat || "").trim().toLowerCase();
+  return map[key] || cat || "-";
+}
+
+function round1(n){
+  return Math.round(n * 10) / 10;
+}
+function getHistoryTotalQuests(range){
+  const daysData = getHistoryDaysData(range);
+
+  return daysData.reduce((sum, day) => {
+    return sum + day.quests.length;
+  }, 0);
+}
+
+function getHistoryMostUsedCategory(range){
+  const daysData = getHistoryDaysData(range);
+  const counts = {};
+
+  daysData.forEach(day => {
+    day.quests.forEach(q => {
+      const cat = getQuestCategory(q);
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+  });
+
+  let topCategory = null;
+  let topCount = 0;
+
+  Object.entries(counts).forEach(([cat, count]) => {
+    if(count > topCount){
+      topCategory = cat;
+      topCount = count;
+    }
+  });
+
+  return {
+    category: topCategory,
+    count: topCount,
+    counts
+  };
+}
+
+function getHistoryAvgSessionLength(range){
+  const daysData = getHistoryDaysData(range);
+
+  let totalMinutes = 0;
+  let totalQuests = 0;
+
+  daysData.forEach(day => {
+    day.quests.forEach(q => {
+      totalMinutes += getQuestMinutes(q);
+      totalQuests++;
+    });
+  });
+
+  const avgMinutes = totalQuests > 0 ? totalMinutes / totalQuests : 0;
+
+  return {
+    totalMinutes,
+    totalQuests,
+    avgMinutes
+  };
+}
+
+function getHistoryConsistencyScore(range){
+  const daysData = getHistoryDaysData(range);
+  const totalDays = daysData.length;
+
+  if(totalDays === 0){
+    return {
+      score: 0,
+      productiveDays: 0,
+      deadDays: 0,
+      currentStreak: 0,
+      bestStreak: 0
+    };
+  }
+
+  let productiveDays = 0;
+  let deadDays = 0;
+  let bestStreak = 0;
+  let running = 0;
+
+  daysData.forEach(day => {
+    if(day.totalQps > 0){
+      productiveDays++;
+      running++;
+      if(running > bestStreak) bestStreak = running;
+    }else{
+      deadDays++;
+      running = 0;
+    }
+  });
+
+  let currentStreak = 0;
+  for(let i = daysData.length - 1; i >= 0; i--){
+    if(daysData[i].totalQps > 0){
+      currentStreak++;
+    }else{
+      break;
+    }
+  }
+
+  const productiveRatio = productiveDays / totalDays;
+  const streakRatio = currentStreak / totalDays;
+  const deadRatio = deadDays / totalDays;
+
+  let score =
+    (productiveRatio * 70) +
+    (streakRatio * 25) -
+    (deadRatio * 10);
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+
+  return {
+    score,
+    productiveDays,
+    deadDays,
+    currentStreak,
+    bestStreak
+  };
+}
+
+function getHistoryAnalytics(range){
+  return {
+    totalQuests: getHistoryTotalQuests(range),
+    mostUsedCategory: getHistoryMostUsedCategory(range),
+    avgSession: getHistoryAvgSessionLength(range),
+    consistency: getHistoryConsistencyScore(range)
+  };
+}
+
+function renderHistoryAnalytics(){
+  const analytics = getHistoryAnalytics(historyRange);
+
+  if(el.histTotalQuests){
+    el.histTotalQuests.textContent = String(analytics.totalQuests);
+  }
+
+  if(el.histMostUsedCategory){
+    const cat = analytics.mostUsedCategory.category;
+    const count = analytics.mostUsedCategory.count || 0;
+
+    el.histMostUsedCategory.textContent = cat
+      ? `${formatCategoryName(cat)} (${count})`
+      : "--";
+  }
+
+  if(el.histAvgSession){
+    el.histAvgSession.textContent = `${round1(analytics.avgSession.avgMinutes)} min`;
+  }
+
+  if(el.histConsistency){
+    el.histConsistency.textContent = `${analytics.consistency.score}%`;
+  }
+}
+
   /* =========================
     BOOT
   ========================= */
