@@ -4140,7 +4140,6 @@ function acquireMasterTab(){
   const current = readMasterTab();
   const now = Date.now();
 
-  // ถ้าไม่มี master หรือ heartbeat เก่าเกิน 4 วิ ให้ยึดได้
   if(!current || !current.tabId || (now - Number(current.ts || 0) > 4000)){
     writeMasterTab();
     isMasterTab = true;
@@ -4148,6 +4147,7 @@ function acquireMasterTab(){
   }
 
   if(current.tabId === TAB_ID){
+    writeMasterTab();
     isMasterTab = true;
     return true;
   }
@@ -4155,6 +4155,8 @@ function acquireMasterTab(){
   isMasterTab = false;
   return false;
 }
+
+
 
 function startTabHeartbeat(){
   if(tabHeartbeat) clearInterval(tabHeartbeat);
@@ -6171,7 +6173,7 @@ function rqStartNow(){
   acquireMasterTab();
 
 if(!isCurrentTabMasterNow()){
-  showActionLockBar("แท็บนี้เป็นแท็บรอง • ยังเริ่มเควสจาก Random Quest ไม่ได้");
+  showActionLockBar("อ้ะ! แท็บนี้เป็นแท็บรอง  ยังเริ่มเควสจาก Random Quest ไม่ได้");
   return;
 }
 
@@ -6221,16 +6223,17 @@ if(!isCurrentTabMasterNow()){
   if(tickHandle) clearInterval(tickHandle);
 
   tickHandle = setInterval(()=>{
-    if(!isCurrentTabMasterNow()){
-      if(state.status === "running" || state.status === "paused"){
-        showTimerWarn("แท็บนี้ไม่ใช่แท็บหลัก ระบบหยุดการนับเวลา");
-      }
-      clearInterval(tickHandle);
-      tickHandle = null;
-      return;
+  if(!isCurrentTabMasterNow()){
+    if(state.status === "running" || state.status === "paused"){
+      showTimerWarn("แท็บนี้ไม่ใช่แท็บหลัก ระบบหยุดการนับเวลา");
     }
+    clearInterval(tickHandle);
+    tickHandle = null;
+    updateUI();
+    return;
+  }
 
-    renderTimer();
+  renderTimer();
 
     // auto stop if cutting enabled
     if(state.status === "running" && state.cutEnabled && state.cutMinutes){
@@ -6307,21 +6310,17 @@ if(!isCurrentTabMasterNow()){
   if(state.status !== "idle") return;
 
   const okMaster = acquireMasterTab();
-
-if(!okMaster){
-  showActionLockBar("อ้ะ! แท็บนี้เป็นแท็บรอง ไปใช้แท็บหลัก หรือปิดอีกแท็บก่อน");
-  return;
-}
+  if(!okMaster){
+    showActionLockBar("อ้ะ! แท็บนี้เป็นแท็บรอง กรุณาใช้แท็บหลัก");
+    return;
+  }
 
   resetNotificationFlags();
 
   const perm = await ensureNotificationPermission();
-console.log("Notification permission:", perm);
+  console.log("Notification permission:", perm);
 
-if(!isCurrentTabMasterNow()){
-  showActionLockBar("แท็บนี้เสียสิทธิ์แท็บหลักระหว่างเริ่มเควส กรุณาใช้แท็บหลัก");
-  return;
-}
+
   console.log("Notification permission:", perm);
 
   if(!gateCanStartQuest()){
@@ -6448,14 +6447,24 @@ if(!isCurrentTabMasterNow()){
   resetNotificationFlags();
 }
 document.addEventListener("visibilitychange", () => {
-  if(document.visibilityState === "visible"){
-    if(state.status === "running" || state.status === "paused"){
-      if(!isMasterTab){
-        if(tickHandle) clearInterval(tickHandle);
-        tickHandle = null;
-        showTimerWarn("ตรวจพบแท็บหลักอีกอัน แท็บนี้หยุดการนับเวลา");
-      }
+  if(document.visibilityState !== "visible") return;
+
+  if(state.status === "running" || state.status === "paused"){
+    const ok = acquireMasterTab();
+
+    if(ok){
+      writeMasterTab();
+      isMasterTab = true;
+
+      if(!tickHandle) startTick();
+      updateUI();
+      return;
     }
+
+    if(tickHandle) clearInterval(tickHandle);
+    tickHandle = null;
+    showTimerWarn("ตรวจพบแท็บหลักอีกอัน แท็บนี้หยุดการนับเวลา");
+    updateUI();
   }
 });
  function discardReport(){
@@ -8653,6 +8662,9 @@ registerSW();
 switchPage("homeScene");
 setQuestCategory(state.selectedCategory || "Learning");
 initDiceDrag();
+
+acquireMasterTab();
+startTabHeartbeat();
 
 acquireMasterTab();
 startTabHeartbeat();
