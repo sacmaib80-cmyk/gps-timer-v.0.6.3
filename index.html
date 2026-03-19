@@ -4152,15 +4152,30 @@ function acquireMasterTab(){
   const current = readMasterTab();
   const now = Date.now();
 
-  if(!current || !current.tabId || (now - Number(current.ts || 0) > 4000)){
+  const canTake =
+    !current ||
+    !current.tabId ||
+    (now - Number(current.ts || 0) > 4000);
+
+  if(canTake){
     writeMasterTab();
     isMasterTab = true;
+
+    if((state.status === "running" || state.status === "paused") && !tickHandle){
+      startTick();
+    }
+
     return true;
   }
 
   if(current.tabId === TAB_ID){
     writeMasterTab();
     isMasterTab = true;
+
+    if((state.status === "running" || state.status === "paused") && !tickHandle){
+      startTick();
+    }
+
     return true;
   }
 
@@ -4174,15 +4189,7 @@ function startTabHeartbeat(){
   if(tabHeartbeat) clearInterval(tabHeartbeat);
 
   tabHeartbeat = setInterval(()=>{
-
-    const current = readMasterTab();
-
-    const expired =
-      !current ||
-      !current.tabId ||
-      (Date.now() - Number(current.ts || 0) > 4000);
-
-    if(isCurrentTabMasterNow() || expired){
+    if(isCurrentTabMasterNow()){
       writeMasterTab();
       isMasterTab = true;
     }else{
@@ -4190,7 +4197,6 @@ function startTabHeartbeat(){
     }
 
     renderMultiTabState();
-
   }, 1500);
 }
 function stopTabHeartbeat(){
@@ -6096,7 +6102,6 @@ function rqClearSelected(){
 }
 window.addEventListener("storage", (e)=>{
   if(e.key === KEY_TAB_MASTER){
-    acquireMasterTab();
     updateUI();
   }
 });
@@ -8802,13 +8807,8 @@ registerSW();
     }
 
     renderCutUI();
-    updateUI();
-    updateStreakAfterChange();
-    maybeShowOnboardingFirstTime();
-
-    gateEnforceStartButton();
-    rqShowIfEligible();
-    rqTickUI();
+updateStreakAfterChange();
+maybeShowOnboardingFirstTime();
 
 switchPage("homeScene");
 setQuestCategory(state.selectedCategory || "Learning");
@@ -8817,8 +8817,12 @@ initDiceDrag();
 acquireMasterTab();
 startTabHeartbeat();
 
+gateEnforceStartButton();
+rqShowIfEligible();
+rqTickUI();
 
-    startTick();
+updateUI();
+startTick();
   }
   boot();
 
