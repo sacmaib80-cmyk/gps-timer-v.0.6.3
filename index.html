@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>SakuraQ v0.10.1</title>
+    <title>SakuraQ v0.10.2</title>
 
     <style>
       :root{
@@ -4033,7 +4033,7 @@ linear-gradient(
                   <div class="brandMeta">
                     <div class="brandTitleRow">
                       <h1>SakuraQ</h1>
-                      <span class="versionBadge">v0.10.1</span>
+                      <span class="versionBadge">v0.10.2</span>
                     </div>
                     <div class="sub" id="todayText">Today: ----</div>
                   </div>
@@ -5615,50 +5615,68 @@ const KEY_DICE_POS = "qps_dice_pos_v1";
   gateCfg = { enabled:false, triggerHHMM:null, lockedUntil:0, effectiveFrom:null };
 
   const scopedKey = makeScopedKey(KEY_GATE_CFG);
-  const scopedRaw = localStorage.getItem(scopedKey);
 
-  // migrate legacy only for guest / only when no scoped data exists
-  if (!scopedRaw && !window.sqAuth?.uid) {
-    try{
-      const legacyRaw = localStorage.getItem(KEY_GATE_PREF_LEGACY);
-      if(legacyRaw){
-        const p = JSON.parse(legacyRaw);
-        if(p && typeof p==="object" && /^\d{2}:\d{2}$/.test(p.triggerHHMM)){
-          const last = Number(p.lastChangedAt || 0);
-          const lockedUntil = last ? (last + GATE_RULES.lockDays*24*60*60*1000) : 0;
+  // 1) โหลดจาก KEY_DATA (ตัวหลัก)
+  try{
+    const all = loadAll();
+    const c = all?.gateCfg;
 
-          gateCfg.triggerHHMM = p.triggerHHMM;
-          gateCfg.enabled = !!p.enabled;
-          gateCfg.lockedUntil = lockedUntil;
-          gateCfg.effectiveFrom = localDateKey();
+    if(c && typeof c === "object"){
+      gateCfg.enabled = !!c.enabled;
+      gateCfg.triggerHHMM = /^\d{2}:\d{2}$/.test(c.triggerHHMM||"") ? c.triggerHHMM : null;
+      gateCfg.lockedUntil = Number(c.lockedUntil || 0);
+      gateCfg.effectiveFrom = c.effectiveFrom || null;
+    }
+  }catch{}
 
-          localStorage.setItem(scopedKey, JSON.stringify(gateCfg));
-        }
-      }
-    }catch{}
-  }
-
+  // 2) fallback → KEY_GATE_CFG (สำหรับ backward compatibility)
   try{
     const raw = localStorage.getItem(scopedKey);
     if(raw){
       const c = JSON.parse(raw);
       if(c && typeof c==="object"){
-        gateCfg.enabled = (typeof c.enabled === "boolean") ? c.enabled : gateCfg.enabled;
-        gateCfg.triggerHHMM = /^\d{2}:\d{2}$/.test(c.triggerHHMM||"") ? c.triggerHHMM : gateCfg.triggerHHMM;
-        gateCfg.lockedUntil = Number.isFinite(Number(c.lockedUntil)) ? Number(c.lockedUntil) : gateCfg.lockedUntil;
-        gateCfg.effectiveFrom = /^\d{4}-\d{2}-\d{2}$/.test(c.effectiveFrom||"") ? c.effectiveFrom : gateCfg.effectiveFrom;
+        if(!gateCfg.triggerHHMM){
+          gateCfg.triggerHHMM = /^\d{2}:\d{2}$/.test(c.triggerHHMM||"") ? c.triggerHHMM : null;
+        }
+        if(!gateCfg.effectiveFrom){
+          gateCfg.effectiveFrom = c.effectiveFrom || null;
+        }
+        if(!gateCfg.lockedUntil){
+          gateCfg.lockedUntil = Number(c.lockedUntil || 0);
+        }
+        if(typeof gateCfg.enabled !== "boolean"){
+          gateCfg.enabled = !!c.enabled;
+        }
       }
     }
   }catch{}
 
+  // 3) sanitize
   if(gateCfg.triggerHHMM && !parseHHMM(gateCfg.triggerHHMM)) gateCfg.triggerHHMM = null;
   if(!Number.isFinite(gateCfg.lockedUntil)) gateCfg.lockedUntil = 0;
-  if(gateCfg.effectiveFrom && !/^\d{4}-\d{2}-\d{2}$/.test(gateCfg.effectiveFrom)) gateCfg.effectiveFrom = null;
 
+  // 4) sync กลับให้ KEY_DATA เสมอ
   saveGateCfg();
 }
   function saveGateCfg(){
-localStorage.setItem(makeScopedKey(KEY_GATE_CFG), JSON.stringify(gateCfg));  }
+  // 1) save local cache (optional)
+  localStorage.setItem(makeScopedKey(KEY_GATE_CFG), JSON.stringify(gateCfg));
+
+  // 2) merge เข้า KEY_DATA
+  const all = loadAll();
+
+  all.gateCfg = {
+    enabled: !!gateCfg.enabled,
+    triggerHHMM: gateCfg.triggerHHMM || null,
+    lockedUntil: Number(gateCfg.lockedUntil || 0),
+    effectiveFrom: gateCfg.effectiveFrom || null
+  };
+
+  all.updatedAt = Date.now();
+
+  // 3) save → จะ trigger cloudSaveAll อัตโนมัติ
+  saveAll(all);
+}
   function canEditTriggerNow(){
     if(!gateCfg.triggerHHMM) return true;
     return Date.now() >= (gateCfg.lockedUntil || 0);
@@ -10354,6 +10372,12 @@ async function cloudLoadAll(){
   updateStreakAfterChange();
   updateUI();
 }
+window.addEventListener("sq-auth-changed", async (e) => {
+  const uid = e.detail?.uid;
+  if (!uid) return;
+
+  await cloudLoadAll();
+});
 window.checkAuthGate = function(){
   const gate = document.getElementById("authGate");
   if(!gate) return;

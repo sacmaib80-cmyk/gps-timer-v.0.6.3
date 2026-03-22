@@ -124,13 +124,6 @@ onAuthStateChanged(auth, (user) => {
   currentUser = user || null;
   syncAuthToWindow();
 
-  if (typeof window.loadGateCfg === "function") {
-    window.loadGateCfg();
-  }
-  if (typeof window.syncGateRuntimeFromCfg === "function") {
-    window.syncGateRuntimeFromCfg();
-  }
-
   document.body.classList.toggle("is-guest", !user);
   document.body.classList.toggle("is-authed", !!user);
 
