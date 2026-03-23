@@ -4798,6 +4798,8 @@ let smartWarnSent = false
 let historyRange = "7d";   // "3d" | "7d" | "30d" | "all"
 let historySelectedDay = null;
 
+let lastGateNotifyKey = null;
+
   /* =========================
     STORAGE KEYS
   ========================= */
@@ -5991,6 +5993,14 @@ const raw = localStorage.getItem(makeScopedKey(KEY_GATE));
     if(el.gateLimitDisplay) el.gateLimitDisplay.textContent = `${GATE_RULES.limitMin}m`;
     if(el.gateQualifyDisplay) el.gateQualifyDisplay.textContent = `${GATE_RULES.qualifyMin}m`;
   }
+  function sendMorningGateNotification(){
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+
+  new Notification("Morning Gate", {
+    body: `ถึงเวลา ${gateCfg.triggerHHMM} แล้ว เริ่มเควสแรกได้เลย`,
+  });
+}
 
   /* =========================
     GATE PAGE v2 (NEW)
@@ -6111,6 +6121,24 @@ const raw = localStorage.getItem(makeScopedKey(KEY_GATE));
       }
       return;
     }
+
+// 🔔 ยิง notification ครั้งเดียวต่อวัน
+const todayKey = localDateKey();
+const notifyKey = `${todayKey}_${gateCfg.triggerHHMM}`;
+
+if(lastGateNotifyKey !== notifyKey){
+  sendMorningGateNotification();
+  lastGateNotifyKey = notifyKey;
+}
+
+async function ensureNotificationPermission(){
+  if (!("Notification" in window)) return;
+
+  if (Notification.permission === "default") {
+    await Notification.requestPermission();
+  }
+}
+
 
     if(!gate.startedAt){
       if(el.gateCoverStatusChip) el.gateCoverStatusChip.textContent = "STATUS: READY";
@@ -10443,6 +10471,7 @@ initDiceDrag();
 acquireMasterTab();
 startTabHeartbeat();
 
+ensureNotificationPermission();
 gateEnforceStartButton();
 rqShowIfEligible();
 rqTickUI();
