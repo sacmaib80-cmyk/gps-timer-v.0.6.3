@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>SakuraQ v0.10.5</title>
 
+    <link rel="manifest" href="./manifest.webmanifest">
+
+<meta name="theme-color" content="#ff5a36">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SakuraQ">
+
+<link rel="apple-touch-icon" href="./icon-192.png">
+
     <style>
       :root{
         --bg:#f6f9ff;
@@ -4002,6 +4011,16 @@ linear-gradient(
 }
 body.hasMultiTabBanner{
   padding-top: 40px;
+}
+
+@media all and (display-mode: standalone) {
+  body {
+    overscroll-behavior: none;
+  }
+
+  .topbar {
+    top: 0;
+  }
 }
 </style>
 </head>
@@ -11660,6 +11679,28 @@ function requireAuth(){
   }
   return true;
 }
+
+let deferredInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  console.log("PWA install available");
+});
+
+async function promptInstallApp(){
+  if(!deferredInstallPrompt){
+    showTimerWarn?.("ยังติดตั้งแบบแอปไม่ได้ตอนนี้");
+    return;
+  }
+
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  console.log("install choice =", choice?.outcome);
+  deferredInstallPrompt = null;
+}
+
+promptInstallApp()
 
   /* =========================
     BOOT
