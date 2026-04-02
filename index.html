@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>SakuraQ v0.10.5</title>
+    <title>SakuraQ v0.11.0</title>
 
     <link rel="manifest" href="./manifest.webmanifest">
 
@@ -4154,7 +4154,7 @@ body.hasMultiTabBanner{
                   <div class="brandMeta">
                     <div class="brandTitleRow">
                       <h1>SakuraQ</h1>
-                      <span class="versionBadge">v0.10.5</span>
+                      <span class="versionBadge">v0.11.0</span>
                     </div>
                     <div class="sub" id="todayText">Today: ----</div>
                   </div>
@@ -11744,26 +11744,6 @@ function requireAuth(){
   return true;
 }
 
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  console.log("PWA install available");
-});
-
-async function promptInstallApp(){
-  if(!deferredInstallPrompt){
-    showTimerWarn?.("ยังติดตั้งแบบแอปไม่ได้ตอนนี้");
-    return;
-  }
-
-  deferredInstallPrompt.prompt();
-  const choice = await deferredInstallPrompt.userChoice;
-  console.log("install choice =", choice?.outcome);
-  deferredInstallPrompt = null;
-}
-
-promptInstallApp()
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
