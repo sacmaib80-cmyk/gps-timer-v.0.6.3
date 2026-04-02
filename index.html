@@ -7,7 +7,7 @@
 
     <link rel="manifest" href="./manifest.webmanifest">
 
-<meta name="theme-color" content="#ff5a36">
+<meta name="theme-color" content="#03a9f4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SakuraQ">
@@ -4778,6 +4778,14 @@ body.hasMultiTabBanner{
     </span>
   </button>
 
+  <button class="topMenuItem" type="button" id="topMenuInstallBtn">
+  <span class="topMenuItemLabel">
+    <span class="topMenuItemTitle">Install SakuraQ</span>
+    <span class="topMenuItemSub" id="topMenuInstallSub">ติดตั้งให้ดูเหมือนแอปจริง</span>
+  </span>
+  <span class="topMenuItemRight" id="topMenuInstallState">WEB</span>
+</button>
+
   <!-- ACCOUNT -->
 <button class="topMenuItem" type="button" id="googleLoginBtn">
   <span class="topMenuItemLabel">
@@ -4985,6 +4993,7 @@ let historyRange = "7d";   // "3d" | "7d" | "30d" | "all"
 let historySelectedDay = null;
 
 let lastGateNotifyKey = null;
+let deferredInstallPrompt = null;
 
   /* =========================
     STORAGE KEYS
@@ -5921,6 +5930,9 @@ function saveUndo(u){
     ELEMENTS
   ========================= */
   const el = {
+    topMenuInstallBtn: $("topMenuInstallBtn"),
+topMenuInstallSub: $("topMenuInstallSub"),
+topMenuInstallState: $("topMenuInstallState"),
 
 homeStreakMini: $("homeStreakMini"),
     homeLevelFill: $("homeLevelFill"),
@@ -6925,19 +6937,67 @@ function closeTopMenu(){
   el.topMenu.setAttribute("aria-hidden", "true");
 }
 
+function isStandaloneMode(){
+  return window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+}
+
 function toggleTopMenu(){
   if(!el.topMenu) return;
   if(el.topMenu.classList.contains("show")) closeTopMenu();
   else openTopMenu();
 }
 
-function renderTopMenuUI(){
-  if(!el.topMenuGateState) return;
-  const canOn = !!gateCfg.triggerHHMM;
-  const onNow = gateCfg.enabled && canOn;
+async function promptInstallApp(){
+  if(isStandaloneMode()){
+    showTimerWarn?.("SakuraQ ถูกเปิดแบบแอปอยู่แล้ว");
+    closeTopMenu?.();
+    return;
+  }
 
-  el.topMenuGateState.textContent = onNow ? "ON" : "OFF";
-  el.topMenuGateState.classList.toggle("on", onNow);
+  if(!deferredInstallPrompt){
+    showTimerWarn?.("ยังติดตั้งไม่ได้ตอนนี้ ลองเปิดผ่าน Chrome แล้วรอสักครู่");
+    closeTopMenu?.();
+    return;
+  }
+
+  try{
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    console.log("[PWA] install choice =", choice?.outcome);
+  }catch(err){
+    console.error("[PWA] install prompt error:", err);
+  }finally{
+    deferredInstallPrompt = null;
+    renderTopMenuUI();
+    closeTopMenu?.();
+  }
+}
+
+function renderTopMenuUI(){
+  if(el.topMenuGateState){
+    const canOn = !!gateCfg.triggerHHMM;
+    const onNow = gateCfg.enabled && canOn;
+
+    el.topMenuGateState.textContent = onNow ? "ON" : "OFF";
+    el.topMenuGateState.classList.toggle("on", onNow);
+  }
+
+  if(el.topMenuInstallState && el.topMenuInstallSub){
+    if(isStandaloneMode()){
+      el.topMenuInstallState.textContent = "APP";
+      el.topMenuInstallState.classList.add("on");
+      el.topMenuInstallSub.textContent = "ติดตั้งแล้ว • เปิดแบบแอป";
+    }else if(deferredInstallPrompt){
+      el.topMenuInstallState.textContent = "READY";
+      el.topMenuInstallState.classList.add("on");
+      el.topMenuInstallSub.textContent = "กดเพื่อติดตั้ง SakuraQ";
+    }else{
+      el.topMenuInstallState.textContent = "WEB";
+      el.topMenuInstallState.classList.remove("on");
+      el.topMenuInstallSub.textContent = "ยังเป็นเว็บอยู่";
+    }
+  }
 }
   /* =========================
     UI HELPERS
@@ -8972,6 +9032,10 @@ async function importFromFile(file){
 
 on(el.topMenuDataBtn, "click", ()=>{
   openDataPanel();
+});
+
+on(el.topMenuInstallBtn, "click", ()=>{
+  promptInstallApp();
 });
 
 function openDataPanel(){
@@ -11680,7 +11744,6 @@ function requireAuth(){
   return true;
 }
 
-let deferredInstallPrompt = null;
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
@@ -11701,6 +11764,19 @@ async function promptInstallApp(){
 }
 
 promptInstallApp()
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  renderTopMenuUI();
+  console.log("[PWA] install prompt ready");
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  renderTopMenuUI();
+  console.log("[PWA] app installed");
+});
 
   /* =========================
     BOOT
@@ -11749,6 +11825,8 @@ ensureNotificationPermission();
 gateEnforceStartButton();
 rqShowIfEligible();
 rqTickUI();
+
+renderTopMenuUI();
 
 updateUI();
 startTick();
